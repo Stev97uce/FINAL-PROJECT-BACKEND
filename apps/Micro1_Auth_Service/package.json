@@ -1,12 +1,12 @@
 {
   "name": "micro1_auth_service",
   "version": "1.0.0",
+  "description": "Sistema de gestión de consultantes y agendamiento para la Facultad de Psicología UCE.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "description": ""
+  "license": "ISC"
 }
