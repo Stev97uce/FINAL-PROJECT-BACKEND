@@ -15,7 +15,7 @@
     "docker:logs": "docker-compose logs -f",
     "clean": "turbo run clean",
     "auth:dev": "turbo run dev --filter=Micro1_Auth_Service",
-    "user:dev": "turbo run dev --filter=user-service"
+    "user:dev": "turbo run dev --filter=Micro2_User_Service"
   },
   "devDependencies": {
     "turbo": "^2.7.3"

@@ -1,0 +1,14 @@
+{
+  "name": "user-service",
+  "version": "1.0.0",
+  "description": "UCE User Service - Microservicio de gestión de perfiles de usuario",
+  "scripts": {
+    "dev": "python run.py",
+    "test": "pytest",
+    "lint": "pylint app/",
+    "format": "black app/"
+  },
+  "keywords": ["microservice", "user", "fastapi", "postgresql"],
+  "author": "UCE Team",
+  "license": "MIT"
+}
