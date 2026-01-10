@@ -1,5 +1,22 @@
 import pytest
+import os
 from fastapi.testclient import TestClient
+
+# Set environment variables before importing app
+os.environ.setdefault("DB_USER", "test")
+os.environ.setdefault("DB_PASSWORD", "test")
+os.environ.setdefault("DB_HOST", "localhost")
+os.environ.setdefault("DB_PORT", "3306")
+os.environ.setdefault("DB_NAME", "test_db")
+os.environ.setdefault("REDIS_HOST", "localhost")
+os.environ.setdefault("REDIS_PORT", "6379")
+os.environ.setdefault("RABBITMQ_HOST", "localhost")
+os.environ.setdefault("RABBITMQ_PORT", "5672")
+os.environ.setdefault("RABBITMQ_USER", "guest")
+os.environ.setdefault("RABBITMQ_PASSWORD", "guest")
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-testing-only")
+os.environ.setdefault("JWT_ALGORITHM", "HS256")
+
 from app.main import app
 
 client = TestClient(app)
