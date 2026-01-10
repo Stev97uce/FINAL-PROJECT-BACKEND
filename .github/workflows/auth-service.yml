@@ -48,7 +48,7 @@ jobs:
         pip install -r requirements-dev.txt
     
     - name: Run tests with Turbo
-      run: turbo run test --filter=Micro1_Auth_Service
+      run: npx turbo run test --filter=Micro1_Auth_Service
     
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3

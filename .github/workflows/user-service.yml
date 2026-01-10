@@ -48,7 +48,7 @@ jobs:
         pip install -r requirements-dev.txt
     
     - name: Run tests with Turbo
-      run: turbo run test --filter=Micro2_User_Service
+      run: npx turbo run test --filter=Micro2_User_Service
     
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
