@@ -2,14 +2,15 @@ name: User Service CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, qa ]
     paths:
       - 'apps/Micro2_User_Service/**'
       - '.github/workflows/user-service.yml'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, qa ]
     paths:
       - 'apps/Micro2_User_Service/**'
+  workflow_dispatch:
 
 env:
   SERVICE_NAME: user-service

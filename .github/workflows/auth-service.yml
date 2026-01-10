@@ -2,14 +2,15 @@ name: Auth Service CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, qa ]
     paths:
       - 'apps/Micro1_Auth_Service/**'
       - '.github/workflows/auth-service.yml'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, qa ]
     paths:
       - 'apps/Micro1_Auth_Service/**'
+  workflow_dispatch:
 
 env:
   SERVICE_NAME: auth-service
