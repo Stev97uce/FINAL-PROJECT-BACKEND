@@ -2,20 +2,33 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
   "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "RABBITMQ_HOST", "JWT_SECRET_KEY"]
+    },
+    "start": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "env": ["DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "RABBITMQ_HOST", "JWT_SECRET_KEY"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**", "test-results/**"],
+      "inputs": ["**/*.py", "**/*.go", "tests/**", "**/test_*.py", "**/*_test.go"]
+    },
+    "lint": {
+      "outputs": [],
+      "inputs": ["**/*.py", "**/*.go"]
+    },
+    "format": {
+      "outputs": [],
+      "inputs": ["**/*.py", "**/*.go"]
+    },
+    "docker:build": {
+      "dependsOn": ["^docker:build"],
+      "outputs": [],
+      "cache": false
     }
   }
 }

@@ -1,63 +1,25 @@
 # ============================================
-# DOCUMENTACIÓN GENERADA (NO SUBIR A GIT)
+# DOCUMENTACIÓN (NO INCLUIR EN DOCKER IMAGES)
 # ============================================
+*.md
+!README.md
 ANALISIS_PROYECTO.md
 RESUMEN_EJECUTIVO.md
 GUIA_IMPLEMENTACION.md
 CHECKLIST.md
 ESTRUCTURA_PROYECTO.md
-RECONFIGURACION_COMPLETADA.md
 
-# Archivos temporales de configuración
+# ============================================
+# CONFIGURACIÓN Y TEMPORALES
+# ============================================
 *.NEW
 *.backup
 *.bak
 *.old
-
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# Dependencies
-node_modules
-.pnp
-.pnp.js
-
-# Local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-!.env.template
-
-# Testing
-coverage
-htmlcov/
-.pytest_cache/
-.coverage
-.tox/
-
-# Turbo
-.turbo
-
-# Vercel
-.vercel
-
-# Build Outputs
-.next/
-out/
-build
-dist
-
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Misc
-.DS_Store
-*.pem
+.git/
+.github/
+.gitignore
+.dockerignore
 
 # ============================================
 # PYTHON
@@ -65,45 +27,58 @@ lerna-debug.log*
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
 venv/
 env/
 ENV/
-env.bak/
-venv.bak/
 *.egg-info/
-*.egg
+.pytest_cache/
+htmlcov/
+.coverage
+.tox/
+dist/
+build/
 
 # ============================================
 # GO
 # ============================================
-*.exe
-*.exe~
-*.dll
-*.dylib
-vendor/
 *.test
 *.out
+vendor/
 
 # ============================================
-# IDEs
+# NODE
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+.turbo/
+.next/
+out/
+
+# ============================================
+# TESTING
+# ============================================
+tests/
+test_*.py
+*_test.go
+coverage/
+
+# ============================================
+# DEVELOPMENT
 # ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
+.DS_Store
+Thumbs.db
 
 # ============================================
-# TERRAFORM
+# ENVIRONMENT FILES
 # ============================================
-*.tfstate
-*.tfstate.backup
-.terraform/
-.terraform.lock.hcl
-terraform.tfvars
-!terraform.tfvars.example
+.env
+.env.*
+!.env.template
 
 # ============================================
 # LOGS
@@ -112,13 +87,27 @@ terraform.tfvars
 logs/
 
 # ============================================
-# DATABASES (LOCAL)
+# DOCKER
 # ============================================
-*.sqlite
-*.db
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.dev
+.dockerignore
 
 # ============================================
-# OS
+# TERRAFORM
 # ============================================
-Thumbs.db
-Desktop.ini
+infrastructure/
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# ============================================
+# DOCUMENTACIÓN ADICIONAL
+# ============================================
+docs/
+README*.md
+!README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE

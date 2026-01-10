@@ -38,26 +38,26 @@ def get_latest_verification_token():
         if result:
             token, email, nombres, expira_en, usado = result
             print("\n" + "="*60)
-            print("🔑 ÚLTIMO TOKEN DE VERIFICACIÓN DE EMAIL")
+            print("ULTIMO TOKEN DE VERIFICACION DE EMAIL")
             print("="*60)
             print(f"Usuario: {nombres}")
             print(f"Email: {email}")
             print(f"Token: {token}")
             print(f"Expira: {expira_en}")
-            print(f"Usado: {'Sí' if usado else 'No'}")
+            print(f"Usado: {'Si' if usado else 'No'}")
             print("="*60)
             print(f"\nURL para verificar:")
             print(f"http://localhost:8000/api/auth/verify-email/{token}")
             print("="*60 + "\n")
         else:
-            print("\n❌ No se encontraron tokens de verificación\n")
+            print("\n[X] No se encontraron tokens de verificacion\n")
         
         cursor.close()
         connection.close()
         
     except Exception as e:
-        print(f"\n❌ Error: {e}\n")
-        print("💡 Asegúrate de:")
+        print(f"\n[X] Error: {e}\n")
+        print("[!] Asegurate de:")
         print("   1. MySQL está corriendo")
         print("   2. La base de datos existe")
         print("   3. Las credenciales en DB_CONFIG son correctas\n")
@@ -84,22 +84,22 @@ def get_latest_password_reset_token():
         if result:
             token, email, nombres, expira_en, usado = result
             print("\n" + "="*60)
-            print("🔑 ÚLTIMO TOKEN DE RECUPERACIÓN DE CONTRASEÑA")
+            print("ULTIMO TOKEN DE RECUPERACION DE CONTRASENA")
             print("="*60)
             print(f"Usuario: {nombres}")
             print(f"Email: {email}")
             print(f"Token: {token}")
             print(f"Expira: {expira_en}")
-            print(f"Usado: {'Sí' if usado else 'No'}")
+            print(f"Usado: {'Si' if usado else 'No'}")
             print("="*60 + "\n")
         else:
-            print("\n❌ No se encontraron tokens de recuperación\n")
+            print("\n[X] No se encontraron tokens de recuperacion\n")
         
         cursor.close()
         connection.close()
         
     except Exception as e:
-        print(f"\n❌ Error: {e}\n")
+        print(f"\n[X] Error: {e}\n")
 
 
 def list_all_users():
@@ -119,29 +119,29 @@ def list_all_users():
         
         if results:
             print("\n" + "="*80)
-            print("👥 USUARIOS REGISTRADOS")
+            print("USUARIOS REGISTRADOS")
             print("="*80)
             print(f"{'ID':<5} {'Nombre':<25} {'Email':<30} {'Rol':<15}")
             print("-"*80)
             
             for user in results:
                 id_, nombres, email, rol, estado, verificado = user
-                verificado_icon = "✓" if verificado else "✗"
+                verificado_icon = "[V]" if verificado else "[X]"
                 print(f"{id_:<5} {nombres:<25} {email:<30} {rol:<15} {verificado_icon}")
             
             print("="*80 + "\n")
         else:
-            print("\n❌ No hay usuarios registrados\n")
+            print("\n[X] No hay usuarios registrados\n")
         
         cursor.close()
         connection.close()
         
     except Exception as e:
-        print(f"\n❌ Error: {e}\n")
+        print(f"\n[X] Error: {e}\n")
 
 
 def main():
-    print("\n🔧 UTILIDAD DE TOKENS - AUTH SERVICE")
+    print("\nUTILIDAD DE TOKENS - AUTH SERVICE")
     print("="*60)
     print("1. Ver último token de verificación de email")
     print("2. Ver último token de recuperación de contraseña")

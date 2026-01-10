@@ -1,103 +1,139 @@
-# Turborepo starter
+# Sistema UCE - Backend Microservicios
 
-This Turborepo starter is maintained by the Turborepo core team.
+Sistema de gestión de consultantes y agendamiento para la Facultad de Psicología UCE.
 
-## Using this example
+## Descripción
 
-Run the following command:
+Monorepo de microservicios construido con Turborepo, Python/FastAPI y Go/Gin para la gestión integral de consultantes, agendamiento y supervisión clínica.
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Estructura del Proyecto
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+FINAL-PROJECT-BACKEND/
+├── apps/
+│   └── auth-service/          Microservicio de autenticación (Python/FastAPI)
+├── packages/                  Paquetes compartidos (por implementar)
+├── docker-compose.yml         Configuración Docker global
+├── package.json               Scripts de Turborepo
+└── turbo.json                 Configuración de tareas
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Tecnologías
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+- **Turborepo** - Monorepo build system
+- **Python 3.11+** / **FastAPI** - Microservicios Python
+- **Go 1.21+** / **Gin** - Microservicios Go
+- **MySQL 8.0** - Base de datos auth-service
+- **PostgreSQL 14** - Base de datos servicios principales
+- **MongoDB 6.0** - Base de datos documentos
+- **Redis 7.0** - Cache y sesiones
+- **RabbitMQ 3** - Message broker
+- **Docker** - Containerización
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## Instalación
 
-### Develop
+### Prerequisitos
 
-To develop all apps and packages, run the following command:
+- Node.js 18+
+- Python 3.11+
+- Go 1.21+
+- Docker Desktop
 
-```
-cd my-turborepo
+### Setup
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+```bash
+# Instalar dependencias de Turborepo
+npm install
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+# Configurar variables de entorno del auth-service
+cd apps/auth-service
+cp .env.template .env
+# Editar .env con tus credenciales
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+# Levantar bases de datos
+cd ../..
+npm run docker:up
 ```
 
-### Remote Caching
+## Comandos Disponibles
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+### Desarrollo
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+```bash
+# Ejecutar todos los servicios
+npm run dev
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+# Ejecutar auth-service
+npm run auth:dev
 
+# O con Turbo directamente
+turbo run dev --filter=auth-service
 ```
+
+### Docker
+
+```bash
+# Levantar servicios
+npm run docker:up
+
+# Detener servicios
+npm run docker:down
+
+# Ver logs
+npm run docker:logs
+
+# Construir imágenes
+npm run docker:build
+```
+
+### Testing
+
+```bash
+# Ejecutar tests
+npm run test
+
+# Tests de un servicio específico
+turbo run test --filter=auth-service
+```
+
+### Linting y Formateo
+
+```bash
+npm run lint
+npm run format
+```
+
+## Microservicios
+
+### Implementados
+
+1. **auth-service** (Python/FastAPI + MySQL)
+   - Autenticación y autorización
+   - Gestión de usuarios
+   - JWT tokens
+   - Verificación de email
+   - Recuperación de contraseña
+
+### Por Implementar
+
+2. user-service (Python/FastAPI + PostgreSQL)
+3. patient-service (Python/FastAPI + PostgreSQL)
+4. appointment-service (Go/Gin + PostgreSQL)
+5. room-service (Go/Gin + PostgreSQL)
+6. clinical-service (Python/FastAPI + MongoDB)
+7. supervision-service (Go/Gin + PostgreSQL)
+8. notification-service (Python/FastAPI + MongoDB)
+9. reporting-service (Python/FastAPI + PostgreSQL)
+10. analytics-service (Go/Gin + MongoDB)
+
+## Documentación
+
+- Auth Service: [apps/auth-service/README.md](apps/auth-service/README.md)
+- API Swagger: http://localhost:8000/docs (después de iniciar)
+
+## Licencia
+
+MIT
 cd my-turborepo
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)

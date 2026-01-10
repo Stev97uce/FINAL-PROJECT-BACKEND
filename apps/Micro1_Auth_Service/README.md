@@ -1,40 +1,42 @@
-# 🏥 Sistema UCE - Microservicio de Autenticación
+# Sistema UCE - Microservicio de Autenticacion
 
 Sistema de gestión de consultantes y agendamiento para la Facultad de Psicología UCE.
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
-Micro1_Auth/
-├── BACKEND/           # Microservicio de autenticación (FastAPI + MySQL)
-│   ├── app/          # Código fuente
-│   ├── *.py          # Scripts de utilidad
-│   ├── *.md          # Documentación
-│   └── *.json        # Colección de Postman
-│
-└── FRONTEND/         # Interface de usuario (En desarrollo)
+auth-service/
+├── app/              # Codigo fuente
+│   ├── routes/      # Endpoints
+│   ├── models.py    # Modelos SQLAlchemy
+│   ├── schemas.py   # Schemas Pydantic
+│   ├── security.py  # JWT y BCrypt
+│   └── events.py    # RabbitMQ publisher
+├── *.py             # Scripts de utilidad
+├── *.md             # Documentacion
+└── *.sql            # Scripts de BD
 ```
 
-## 🚀 Estado del Proyecto
+## Estado del Proyecto
 
-### ✅ BACKEND - Completado
+### BACKEND - Completado
 - [x] Arquitectura REST + Event-Driven
-- [x] 8 endpoints de autenticación
+- [x] 8 endpoints de autenticacion
 - [x] Base de datos MySQL con 3 tablas
 - [x] JWT + BCrypt para seguridad
-- [x] Integración con RabbitMQ
-- [x] Validación de roles y permisos
-- [x] Documentación Swagger automática
-- [x] Colección de Postman para pruebas
+- [x] Integracion con RabbitMQ
+- [x] Validacion de roles y permisos
+- [x] Documentacion Swagger automatica
+- [x] Coleccion de Postman para pruebas
 - [x] Docker ready
 
-### 🔜 FRONTEND - Pendiente
+### FRONTEND - Pendiente
 - [ ] Interfaz de usuario
 - [ ] Formularios de registro/login
 - [ ] Dashboard de usuario
-- [ ] (Se desarrollará después de probar el backend)
+- [ ] (Se desarrollara despues de probar el backend)
 
-## 🛠️ Tecnologías
+## Tecnologias
 
 ### Backend
 - **Python 3.11+**
@@ -51,45 +53,44 @@ Micro1_Auth/
 - **Docker Compose** - Orquestación local
 - **AWS** - Despliegue en producción (futuro)
 
-## 📖 Documentación
+## Documentacion
 
-- **[BACKEND/README.md](BACKEND/README.md)** - Documentación técnica completa
-- **[BACKEND/GUIA_RAPIDA.md](BACKEND/GUIA_RAPIDA.md)** - Guía de inicio rápido
-- **[BACKEND/database_setup.sql](BACKEND/database_setup.sql)** - Script de BD
-- **Swagger UI**: http://localhost:8000/docs (después de iniciar)
+- **[README2.md](README2.md)** - Documentacion tecnica completa
+- **[GUIA_RAPIDA.md](GUIA_RAPIDA.md)** - Guia de inicio rapido
+- **[database_setup.sql](database_setup.sql)** - Script de BD
+- **Swagger UI**: http://localhost:8000/docs (despues de iniciar)
 
-## ⚡ Inicio Rápido
+## Inicio Rapido
 
 ### 1. Configurar Base de Datos
 ```sql
-mysql -u root -p < BACKEND/database_setup.sql
+mysql -u root -p < database_setup.sql
 ```
 
 ### 2. Configurar Variables de Entorno
 ```powershell
-cd BACKEND
-# Editar .env con tus credenciales de MySQL
+# Copiar el template y editar con tus credenciales
+cp .env.template .env
 ```
 
 ### 3. Iniciar el Servidor
 ```powershell
-cd BACKEND
 python run.py
 ```
 
-### 4. Probar con Postman
-1. Importar `BACKEND/UCE_Auth_Service.postman_collection.json`
-2. Ejecutar "Health Check"
-3. Seguir la guía de pruebas
+### 4. Probar la API
+- Swagger UI: http://localhost:8000/docs
+- Importar coleccion Postman si existe
+- Ejecutar Health Check
 
-## 🔐 Credenciales de Prueba
+## Credenciales de Prueba
 
 **Usuario Administrador** (pre-configurado):
 - Email: `admin@uce.edu.ec`
 - Password: `Admin123`
 - Rol: `administrador`
 
-## 📡 Endpoints Principales
+## Endpoints Principales
 
 | Endpoint | Método | Descripción |
 |----------|--------|-------------|
@@ -101,9 +102,9 @@ python run.py
 | `/api/auth/forgot-password` | POST | Recuperar contraseña |
 | `/api/auth/reset-password` | POST | Restablecer contraseña |
 | `/api/auth/refresh` | POST | Renovar access token |
-| `/api/auth/logout` | POST | Cerrar sesión |
+| `/api/auth/logout` | POST | Cerrar sesion |
 
-## 🎯 Roles de Usuario
+## Roles de Usuario
 
 1. **consultante** - Auto-registro permitido
 2. **recepcionista** - Registro por admin
@@ -111,17 +112,17 @@ python run.py
 4. **psicologo_supervisor** - Registro por admin
 5. **administrador** - Registro por admin
 
-## 📊 Eventos Emitidos
+## Eventos Emitidos
 
-El microservicio emite eventos a través de RabbitMQ:
+El microservicio emite eventos a traves de RabbitMQ:
 
 1. `user.registered` - Cuando un usuario se registra
 2. `user.verified` - Cuando se verifica el email
-3. `password.reset_requested` - Cuando se solicita recuperación
+3. `password.reset_requested` - Cuando se solicita recuperacion
 
-Estos eventos serán consumidos por otros microservicios (Notification Service, User Service, etc.)
+Estos eventos seran consumidos por otros microservicios (Notification Service, User Service, etc.)
 
-## 🧪 Pruebas
+## Pruebas
 
 ### Con Postman
 1. Importar colección
@@ -135,39 +136,37 @@ Estos eventos serán consumidos por otros microservicios (Notification Service, 
 
 ### Con Script Python
 ```powershell
-cd BACKEND
-python get_tokens.py verify  # Ver último token de verificación
+python get_tokens.py verify  # Ver ultimo token de verificacion
 python get_tokens.py users   # Listar usuarios
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-Ver **[BACKEND/GUIA_RAPIDA.md](BACKEND/GUIA_RAPIDA.md)** para solución de problemas comunes.
+Ver **[GUIA_RAPIDA.md](GUIA_RAPIDA.md)** para solucion de problemas comunes.
 
-## 📝 Próximos Pasos
+## Proximos Pasos
 
-1. ✅ Probar todos los endpoints con Postman
-2. ⏳ Verificar logs y comportamiento
-3. ⏳ Optimizar rendimiento si es necesario
-4. ⏳ Desarrollar Frontend (cuando tú lo indiques)
-5. ⏳ Integrar con otros microservicios
-6. ⏳ Desplegar en AWS
+1. [x] Probar todos los endpoints
+2. [ ] Verificar logs y comportamiento
+3. [ ] Optimizar rendimiento si es necesario
+4. [ ] Integrar con otros microservicios
+5. [ ] Desplegar en AWS
 
-## 👨‍💻 Desarrollo
+## Desarrollo
 
 Este es el **Microservicio #1** de un sistema de 10 microservicios.
 
-**Principios de diseño:**
-- ✅ KISS (Keep It Simple, Stupid)
-- ✅ Separación de responsabilidades
-- ✅ Event-Driven Architecture
-- ✅ RESTful API
-- ✅ Seguridad por diseño
+**Principios de diseno:**
+- KISS (Keep It Simple, Stupid)
+- Separacion de responsabilidades
+- Event-Driven Architecture
+- RESTful API
+- Seguridad por diseno
 
-## 📧 Contacto
+## Contacto
 
-Para dudas o problemas, revisar la documentación en `BACKEND/README.md` o `BACKEND/GUIA_RAPIDA.md`.
+Para dudas o problemas, revisar la documentacion en los archivos MD incluidos.
 
 ---
 
-**Estado**: 🟢 Backend Listo para Pruebas | 🟡 Frontend Pendiente
+**Estado**: Backend Listo para Pruebas | Frontend Pendiente

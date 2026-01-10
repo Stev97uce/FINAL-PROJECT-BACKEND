@@ -1,0 +1,291 @@
+version: '3.8'
+
+# ============================================================
+# DOCKER COMPOSE GLOBAL - UCE PSICOLOGÍA BACKEND
+# ============================================================
+# Este archivo levanta TODOS los servicios del proyecto
+# para desarrollo local
+# ============================================================
+
+services:
+  # ===================================
+  # BASES DE DATOS (Simulan Cuenta 1)
+  # ===================================
+  
+  mysql:
+    image: mysql:8.0
+    container_name: uce_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: auth_service_db
+      MYSQL_USER: authuser
+      MYSQL_PASSWORD: authpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./apps/Micro1_Auth_Service/database_setup.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uce_network
+
+  postgresql:
+    image: postgres:14-alpine
+    container_name: uce_postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_service_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uce_network
+
+  mongodb:
+    image: mongo:6.0
+    container_name: uce_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uce_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: uce_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uce_network
+
+  # ===================================
+  # MESSAGE BROKERS
+  # ===================================
+  
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: uce_rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uce_network
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: uce_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT
+      - "9001:9001"   # WebSockets
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - uce_network
+
+  # ===================================
+  # MICROSERVICIO 1: AUTH SERVICE
+  # ===================================
+  
+  auth-service:
+    build:
+      context: ./apps/Micro1_Auth_Service
+      dockerfile: Dockerfile
+    container_name: uce_auth_service
+    restart: unless-stopped
+    environment:
+      # Database
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: authuser
+      DB_PASSWORD: authpassword
+      DB_NAME: auth_service_db
+      # JWT
+      JWT_SECRET_KEY: development-secret-key-change-in-production
+      JWT_ALGORITHM: HS256
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: 7
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_EXCHANGE: uce_events
+      # App
+      APP_ENV: development
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - uce_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===================================
+  # MICROSERVICIO 2: USER SERVICE (Por implementar)
+  # ===================================
+  
+  # user-service:
+  #   build:
+  #     context: ./apps/user-service
+  #     dockerfile: Dockerfile
+  #   container_name: uce_user_service
+  #   restart: unless-stopped
+  #   environment:
+  #     DB_HOST: postgresql
+  #     DB_PORT: 5432
+  #     DB_USER: postgres
+  #     DB_PASSWORD: postgres
+  #     DB_NAME: user_service_db
+  #     RABBITMQ_HOST: rabbitmq
+  #     APP_PORT: 8001
+  #   ports:
+  #     - "8001:8001"
+  #   depends_on:
+  #     postgresql:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - uce_network
+
+  # ===================================
+  # HERRAMIENTAS DE DESARROLLO
+  # ===================================
+  
+  adminer:
+    image: adminer:latest
+    container_name: uce_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    depends_on:
+      - mysql
+      - postgresql
+    networks:
+      - uce_network
+
+# VOLUMENES PERSISTENTES
+
+volumes:
+  mysql_data:
+    driver: local
+  postgresql_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  mosquitto_data:
+    driver: local
+  mosquitto_logs:
+    driver: local
+
+# ===================================
+# RED COMPARTIDA
+# ===================================
+
+networks:
+  uce_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ===================================
+# COMANDOS ÚTILES
+# ===================================
+# 
+# Levantar todos los servicios:
+#   docker-compose up -d
+#
+# Levantar solo bases de datos:
+#   docker-compose up -d mysql postgresql mongodb redis rabbitmq mosquitto
+#
+# Levantar Auth Service:
+#   docker-compose up -d auth-service
+#
+# Ver logs:
+#   docker-compose logs -f auth-service
+#
+# Detener todo:
+#   docker-compose down
+#
+# Detener y eliminar volúmenes (⚠️ CUIDADO: Borra datos):
+#   docker-compose down -v
+#umenes (
+# Reconstruir imágenes:
+#   docker-compose build --no-cache
+#
+# Acceder a MySQL:
+#   docker exec -it uce_mysql mysql -u root -prootpassword
+#
+# Acceder a PostgreSQL:
+#   docker exec -it uce_postgresql psql -U postgres
+#
+# Acceder a MongoDB:
+#   docker exec -it uce_mongodb mongosh -u root -p rootpassword
+#
+# Acceder a RabbitMQ Management:
+#   http://localhost:15672 (guest/guest)
+#
+# Acceder a Adminer:
+#   http://localhost:8080
+#
+# ===================================
