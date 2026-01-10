@@ -40,15 +40,13 @@ jobs:
     - name: Install root dependencies (Turbo)
       run: npm install
     
-    - name: Install Python dependencies
-      working-directory: ${{ env.WORKING_DIR }}
+    - name: Run tests with Turbo
       run: |
-        python -m pip install --upgrade pip
+        cd apps/Micro1_Auth_Service
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    
-    - name: Run tests with Turbo
-      run: npx turbo run test --filter=Micro1_Auth_Service
+        cd ../..
+        npx turbo run test --filter=Micro1_Auth_Service
     
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3

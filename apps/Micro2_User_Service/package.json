@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "python run.py",
     "test": "python -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=xml",
-    "lint": "pylint app/",
-    "format": "black app/",
+    "lint": "python -m pylint app/",
+    "format": "python -m black app/",
     "docker:build": "docker build -t uce-user-service ."
   },
   "keywords": ["microservice", "user", "fastapi", "postgresql"],
