@@ -3,6 +3,10 @@
   "private": true,
   "version": "1.0.0",
   "description": "Sistema de Gestión de Consultantes UCE - Backend Microservicios",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "start": "turbo run start",

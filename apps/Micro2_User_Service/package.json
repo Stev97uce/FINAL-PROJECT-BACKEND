@@ -4,7 +4,7 @@
   "description": "Microservicio de Usuarios - Gestión de perfiles de usuario UCE",
   "scripts": {
     "dev": "python run.py",
-    "test": "pytest tests/ -v --cov=app --cov-report=term-missing",
+    "test": "python -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=xml",
     "lint": "pylint app/",
     "format": "black app/",
     "docker:build": "docker build -t uce-user-service ."
