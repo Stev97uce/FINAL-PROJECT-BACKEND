@@ -70,8 +70,8 @@ async def register(
         email=data.email,
         telefono=data.telefono,
         password_hash=password_hash,
-        rol=data.rol,
-        estado=EstadoEnum.PENDIENTE_VERIFICACION,
+        rol=data.rol.value,
+        estado=EstadoEnum.PENDIENTE_VERIFICACION.value,
         email_verificado=False
     )
     
@@ -86,7 +86,7 @@ async def register(
     verification_token = VerificationToken(
         user_id=new_user.id,
         token=token,
-        tipo=TipoTokenEnum.EMAIL_VERIFICATION,
+        tipo=TipoTokenEnum.EMAIL_VERIFICATION.value,
         expira_en=expiration,
         usado=False
     )
@@ -99,7 +99,7 @@ async def register(
         user_id=new_user.id,
         email=new_user.email,
         nombres=new_user.nombres,
-        rol=new_user.rol.value,
+        rol=new_user.rol,
         telefono=new_user.telefono
     )
     
@@ -152,8 +152,8 @@ async def register_staff(
         email=data.email,
         telefono=data.telefono,
         password_hash=password_hash,
-        rol=data.rol,
-        estado=EstadoEnum.PENDIENTE_VERIFICACION,
+        rol=data.rol.value,
+        estado=EstadoEnum.PENDIENTE_VERIFICACION.value,
         email_verificado=False
     )
     
@@ -168,7 +168,7 @@ async def register_staff(
     verification_token = VerificationToken(
         user_id=new_user.id,
         token=token,
-        tipo=TipoTokenEnum.EMAIL_VERIFICATION,
+        tipo=TipoTokenEnum.EMAIL_VERIFICATION.value,
         expira_en=expiration,
         usado=False
     )
@@ -181,13 +181,13 @@ async def register_staff(
         user_id=new_user.id,
         email=new_user.email,
         nombres=new_user.nombres,
-        rol=new_user.rol.value,
+        rol=new_user.rol,
         telefono=new_user.telefono
     )
     
     return RegisterResponse(
         user_id=new_user.id,
-        message=f"Usuario {data.rol.value} registrado exitosamente. Se ha enviado un email de verificación."
+        message=f"Usuario {data.rol.value} registrado exitosamente. Se ha enviado un email de verificacion."
     )
 
 
@@ -197,7 +197,7 @@ async def verify_email(token: str, db: Session = Depends(get_db)):
     # Find token
     verification = db.query(VerificationToken).filter(
         VerificationToken.token == token,
-        VerificationToken.tipo == TipoTokenEnum.EMAIL_VERIFICATION
+        VerificationToken.tipo == TipoTokenEnum.EMAIL_VERIFICATION.value
     ).first()
     
     if not verification:
@@ -230,7 +230,7 @@ async def verify_email(token: str, db: Session = Depends(get_db)):
     
     # Update user
     user.email_verificado = True
-    user.estado = EstadoEnum.ACTIVO
+    user.estado = EstadoEnum.ACTIVO.value
     
     # Mark token as used
     verification.usado = True
@@ -263,7 +263,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
         )
     
     # Check if user is active
-    if user.estado != EstadoEnum.ACTIVO:
+    if user.estado != EstadoEnum.ACTIVO.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Tu cuenta no está activa. Contacta al administrador."
@@ -273,7 +273,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
     access_token = create_access_token({
         "user_id": user.id,
         "email": user.email,
-        "rol": user.rol.value
+        "rol": user.rol
     })
     
     # Create refresh token
@@ -297,7 +297,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
             id=user.id,
             nombres=user.nombres,
             email=user.email,
-            rol=user.rol.value
+            rol=user.rol
         )
     )
 
@@ -316,7 +316,7 @@ async def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get
         reset_token = VerificationToken(
             user_id=user.id,
             token=token,
-            tipo=TipoTokenEnum.PASSWORD_RESET,
+            tipo=TipoTokenEnum.PASSWORD_RESET.value,
             expira_en=expiration,
             usado=False
         )
@@ -343,7 +343,7 @@ async def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_d
     # Find token
     reset_token = db.query(VerificationToken).filter(
         VerificationToken.token == data.token,
-        VerificationToken.tipo == TipoTokenEnum.PASSWORD_RESET
+        VerificationToken.tipo == TipoTokenEnum.PASSWORD_RESET.value
     ).first()
     
     if not reset_token:
@@ -425,7 +425,7 @@ async def refresh_access_token(data: RefreshTokenRequest, db: Session = Depends(
     access_token = create_access_token({
         "user_id": user.id,
         "email": user.email,
-        "rol": user.rol.value
+        "rol": user.rol
     })
     
     return RefreshTokenResponse(access_token=access_token)
@@ -457,5 +457,5 @@ async def validate_token(current_user: User = Depends(get_current_user)):
     return TokenValidationResponse(
         user_id=current_user.id,
         email=current_user.email,
-        rol=current_user.rol.value
+        rol=current_user.rol
     )
