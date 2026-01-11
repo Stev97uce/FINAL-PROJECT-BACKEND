@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  patient-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uce_patient_service
+    ports:
+      - "8002:8002"
+    environment:
+      # Servidor
+      APP_NAME: "Patient Service"
+      APP_VERSION: "1.0.0"
+      HOST: "0.0.0.0"
+      PORT: 8002
+      DEBUG: "false"
+      ENVIRONMENT: "production"
+      
+      # PostgreSQL
+      DB_HOST: "${DB_HOST:-postgres}"
+      DB_PORT: "${DB_PORT:-5432}"
+      DB_USER: "${DB_USER:-postgres}"
+      DB_PASSWORD: "${DB_PASSWORD:-postgres}"
+      DB_NAME: "${DB_NAME:-patient_db}"
+      
+      # Redis
+      REDIS_HOST: "${REDIS_HOST:-redis}"
+      REDIS_PORT: "${REDIS_PORT:-6379}"
+      REDIS_DB: 2
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-}"
+      
+      # RabbitMQ
+      RABBITMQ_HOST: "${RABBITMQ_HOST:-rabbitmq}"
+      RABBITMQ_PORT: "${RABBITMQ_PORT:-5672}"
+      RABBITMQ_USER: "${RABBITMQ_USER:-guest}"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:-guest}"
+      RABBITMQ_EXCHANGE: "uce_events"
+      
+      # JWT
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY:-your-super-secret-key-change-in-production}"
+      JWT_ALGORITHM: "HS256"
+      
+      # Servicios
+      AUTH_SERVICE_URL: "${AUTH_SERVICE_URL:-http://auth-service:8000}"
+      USER_SERVICE_URL: "${USER_SERVICE_URL:-http://user-service:8001}"
+      
+      # CORS
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:3001"]'
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    networks:
+      - uce-network
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8002/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL (compartido con User Service)
+  postgres:
+    image: postgres:14-alpine
+    container_name: uce_patient_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: patient_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_patient_data:/var/lib/postgresql/data
+    networks:
+      - uce-network
+    restart: unless-stopped
+
+  # Redis (compartido)
+  redis:
+    image: redis:7-alpine
+    container_name: uce_patient_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_patient_data:/data
+    networks:
+      - uce-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # RabbitMQ (compartido)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: uce_patient_rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_patient_data:/var/lib/rabbitmq
+    networks:
+      - uce-network
+    restart: unless-stopped
+
+networks:
+  uce-network:
+    driver: bridge
+
+volumes:
+  postgres_patient_data:
+  redis_patient_data:
+  rabbitmq_patient_data:

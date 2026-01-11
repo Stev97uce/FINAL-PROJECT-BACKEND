@@ -1,0 +1,19 @@
+{
+  "name": "patient-service",
+  "version": "1.0.0",
+  "description": "Patient Service - Gestión de consultantes y expedientes",
+  "scripts": {
+    "dev": "python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8002",
+    "start": "python -m uvicorn app.main:app --host 0.0.0.0 --port 8002",
+    "test": "python -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=xml",
+    "test:watch": "python -m pytest tests/ -v --cov=app -f",
+    "lint": "echo 'Linting Python code...' && python -m flake8 app/ || exit 0",
+    "format": "echo 'Formatting Python code...' && python -m black app/ tests/ || exit 0",
+    "docker:build": "docker build -t stevxd97/uce-patient-service:latest .",
+    "docker:run": "docker run -p 8002:8002 --env-file .env stevxd97/uce-patient-service:latest",
+    "docker:push": "docker push stevxd97/uce-patient-service:latest"
+  },
+  "keywords": ["fastapi", "patient", "healthcare", "microservice"],
+  "author": "UCE Team",
+  "license": "MIT"
+}

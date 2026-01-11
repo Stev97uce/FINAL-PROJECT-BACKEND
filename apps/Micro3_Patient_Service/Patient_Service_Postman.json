@@ -1,0 +1,428 @@
+{
+	"info": {
+		"_postman_id": "patient-service-collection",
+		"name": "Patient Service API",
+		"description": "Colección de endpoints para el Patient Service - Gestión de Consultantes y Expedientes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8002",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "patient_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "expediente_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "Verifica el estado del servicio"
+					}
+				},
+				{
+					"name": "Root Info",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"],
+							"path": [""]
+						},
+						"description": "Información general del servicio"
+					}
+				},
+				{
+					"name": "API Docs",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/docs",
+							"host": ["{{base_url}}"],
+							"path": ["docs"]
+						},
+						"description": "Documentación interactiva Swagger"
+					}
+				}
+			]
+		},
+		{
+			"name": "Patients",
+			"item": [
+				{
+					"name": "Crear Paciente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('patient_id', jsonData.id);",
+									"    console.log('Patient ID guardado:', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 100,\n  \"nombres\": \"Juan Carlos\",\n  \"apellidos\": \"Pérez García\",\n  \"cedula\": \"1234567890\",\n  \"fecha_nacimiento\": \"1990-05-15\",\n  \"genero\": \"Masculino\",\n  \"estado_civil\": \"Soltero/a\",\n  \"telefono\": \"0987654321\",\n  \"telefono_emergencia\": \"0987654322\",\n  \"contacto_emergencia_nombre\": \"María Pérez\",\n  \"contacto_emergencia_relacion\": \"Madre\",\n  \"direccion\": \"Av. 10 de Agosto N45-123 y Coruña\",\n  \"ciudad\": \"Quito\",\n  \"provincia\": \"Pichincha\",\n  \"tipo_sangre\": \"O+\",\n  \"alergias\": \"Penicilina\",\n  \"medicamentos_actuales\": \"Ninguno\",\n  \"condiciones_medicas\": \"Ninguna\",\n  \"ocupacion\": \"Ingeniero de Software\",\n  \"institucion\": \"Tech Company S.A.\",\n  \"motivo_consulta_inicial\": \"Ansiedad laboral y problemas de concentración\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", ""]
+						},
+						"description": "Crear un nuevo paciente (requiere rol: recepcionista o administrador)"
+					}
+				},
+				{
+					"name": "Listar Pacientes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/?skip=0&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", ""],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": "Juan",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Listar todos los pacientes con paginación y búsqueda"
+					}
+				},
+				{
+					"name": "Obtener Paciente por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", "{{patient_id}}"]
+						},
+						"description": "Obtener detalles de un paciente específico"
+					}
+				},
+				{
+					"name": "Obtener Paciente por User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/by-user/100",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", "by-user", "100"]
+						},
+						"description": "Obtener paciente asociado a un user_id"
+					}
+				},
+				{
+					"name": "Obtener Paciente por Cédula",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/by-cedula/1234567890",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", "by-cedula", "1234567890"]
+						},
+						"description": "Buscar paciente por número de cédula"
+					}
+				},
+				{
+					"name": "Actualizar Paciente",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"telefono\": \"0999999999\",\n  \"direccion\": \"Nueva dirección actualizada\",\n  \"ocupacion\": \"Senior Software Engineer\",\n  \"motivo_consulta_inicial\": \"Ansiedad laboral - Actualizado\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", "{{patient_id}}"]
+						},
+						"description": "Actualizar información de un paciente"
+					}
+				},
+				{
+					"name": "Desactivar Paciente",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", "{{patient_id}}"]
+						},
+						"description": "Desactivar (soft delete) un paciente"
+					}
+				}
+			]
+		},
+		{
+			"name": "Expedientes",
+			"item": [
+				{
+					"name": "Crear Expediente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('expediente_id', jsonData.id);",
+									"    console.log('Expediente ID guardado:', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": {{patient_id}},\n  \"psicologo_asignado_id\": 10,\n  \"supervisor_asignado_id\": 15,\n  \"diagnostico_inicial\": \"Trastorno de ansiedad generalizada (F41.1)\",\n  \"plan_tratamiento\": \"Terapia cognitivo-conductual, 12 sesiones semanales\",\n  \"objetivos_terapeuticos\": \"1. Reducir síntomas de ansiedad\\n2. Mejorar estrategias de afrontamiento\\n3. Aumentar funcionalidad laboral\",\n  \"observaciones_generales\": \"Paciente colaborador, motivado para el tratamiento\",\n  \"antecedentes_personales\": \"Sin antecedentes psiquiátricos previos\",\n  \"antecedentes_familiares\": \"Madre con trastorno de ansiedad\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", ""]
+						},
+						"description": "Crear nuevo expediente clínico para un paciente"
+					}
+				},
+				{
+					"name": "Listar Expedientes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/?skip=0&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", ""],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "estado",
+									"value": "Activo",
+									"disabled": true
+								},
+								{
+									"key": "psicologo_id",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "supervisor_id",
+									"value": "15",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Listar expedientes con filtros opcionales"
+					}
+				},
+				{
+					"name": "Obtener Expediente por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/{{expediente_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", "{{expediente_id}}"]
+						},
+						"description": "Obtener detalles de un expediente específico"
+					}
+				},
+				{
+					"name": "Obtener Expedientes por Paciente",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/by-patient/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", "by-patient", "{{patient_id}}"]
+						},
+						"description": "Obtener todos los expedientes de un paciente"
+					}
+				},
+				{
+					"name": "Obtener Expediente por Código",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/by-codigo/EXP-2026-0001",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", "by-codigo", "EXP-2026-0001"]
+						},
+						"description": "Buscar expediente por código (EXP-YYYY-NNNN)"
+					}
+				},
+				{
+					"name": "Actualizar Expediente",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"diagnostico_inicial\": \"Trastorno de ansiedad generalizada (F41.1) - Actualizado\",\n  \"plan_tratamiento\": \"Terapia cognitivo-conductual, 16 sesiones (extendido)\",\n  \"numero_sesiones\": 3,\n  \"ultima_sesion_fecha\": \"2026-01-10T14:30:00\",\n  \"observaciones_generales\": \"Paciente muestra mejoría significativa en las últimas sesiones\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/{{expediente_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", "{{expediente_id}}"]
+						},
+						"description": "Actualizar información del expediente"
+					}
+				},
+				{
+					"name": "Cerrar Expediente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"motivo_cierre\": \"Alta por mejoría. Paciente logró objetivos terapéuticos establecidos. Síntomas de ansiedad reducidos significativamente.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/expedientes/{{expediente_id}}/close",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "expedientes", "{{expediente_id}}", "close"]
+						},
+						"description": "Cerrar un expediente (finalizar tratamiento)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Testing - Sin Auth",
+			"item": [
+				{
+					"name": "Test sin Token (debe fallar)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/patients/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "patients", ""]
+						},
+						"description": "Debería retornar 401 Unauthorized"
+					}
+				}
+			]
+		}
+	]
+}
