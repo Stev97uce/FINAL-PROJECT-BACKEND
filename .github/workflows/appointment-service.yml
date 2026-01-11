@@ -31,13 +31,16 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('apps/Micro4_Appointment_Service/go.mod') }}
           restore-keys: |
             ${{ runner.os }}-go-
       
       - name: Install dependencies
         working-directory: apps/Micro4_Appointment_Service
-        run: go mod download
+        run: |
+          go mod tidy
+          go mod download
+          go mod verify
       
       - name: Run go vet
         working-directory: apps/Micro4_Appointment_Service
