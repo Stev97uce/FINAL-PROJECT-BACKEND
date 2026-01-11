@@ -13,7 +13,8 @@ FINAL-PROJECT-BACKEND/
 ├── apps/
 │   ├── Micro1_Auth_Service/       ✅ Autenticación JWT (Python/FastAPI + MySQL)
 │   ├── Micro2_User_Service/       ✅ Gestión de usuarios (Python/FastAPI + PostgreSQL)
-│   └── Micro3_Patient_Service/    ✅ Gestión de pacientes (Python/FastAPI + PostgreSQL)
+│   ├── Micro3_Patient_Service/    ✅ Gestión de pacientes (Python/FastAPI + PostgreSQL)
+│   └── Micro4_Appointment_Service/ ✅ Agendamiento y citas (Go/Gin + PostgreSQL + Redis)
 ├── packages/                      Paquetes compartidos (por implementar)
 ├── .github/workflows/             CI/CD con GitHub Actions
 ├── docker-compose.yml             Configuración Docker global
@@ -28,7 +29,7 @@ FINAL-PROJECT-BACKEND/
 | 1 | Auth Service | 8000 | ✅ Completo | Python/FastAPI | MySQL 8.0 |
 | 2 | User Service | 8001 | ✅ Completo | Python/FastAPI | PostgreSQL 14 |
 | 3 | Patient Service | 8002 | ✅ Completo | Python/FastAPI | PostgreSQL 14 |
-| 4 | Appointment Service | 8003 | 🔄 Pendiente | Go/Gin | PostgreSQL 14 |
+| 4 | Appointment Service | 8003 | ✅ Completo | Go/Gin | PostgreSQL 14 + Redis |
 | 5 | Room Service | 8004 | 🔄 Pendiente | Go/Gin | PostgreSQL 14 |
 | 6 | Clinical Service | 8005 | 🔄 Pendiente | Python/FastAPI | MongoDB 6.0 |
 | 7 | Supervision Service | 8006 | 🔄 Pendiente | Go/Gin | PostgreSQL 14 |
