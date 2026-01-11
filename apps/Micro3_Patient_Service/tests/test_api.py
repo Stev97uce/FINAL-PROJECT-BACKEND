@@ -252,7 +252,7 @@ def test_create_expediente():
 def test_unauthorized_access():
     """Test de acceso sin token"""
     response = client.get("/api/v1/patients/")
-    assert response.status_code == 401  # HTTPBearer retorna 401 sin credenciales
+    assert response.status_code == 403  # Sin token retorna 403 Forbidden
 
 def test_invalid_role():
     """Test de acceso con rol inválido"""
