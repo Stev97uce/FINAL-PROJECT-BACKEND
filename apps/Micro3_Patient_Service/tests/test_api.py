@@ -23,11 +23,19 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from jose import jwt
+from unittest.mock import MagicMock, patch
+
+# Mock de RabbitMQ antes de importar app
+mock_rabbitmq = MagicMock()
+mock_rabbitmq.connect = MagicMock()
+mock_rabbitmq.close = MagicMock()
+mock_rabbitmq.publish_event = MagicMock()
 
 # Importar después de configurar variables de entorno
-from app.main import app
-from app.database import Base, get_db
-from app.config import settings
+with patch('app.events.rabbitmq_publisher', mock_rabbitmq):
+    from app.main import app
+    from app.database import Base, get_db
+    from app.config import settings
 
 # Base de datos en memoria para tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test_patient.db"
