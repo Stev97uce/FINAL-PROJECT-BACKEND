@@ -25,14 +25,6 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Cache Python dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-patient-${{ hashFiles('apps/Micro3_Patient_Service/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-patient-
-      
       - name: Install dependencies
         working-directory: apps/Micro3_Patient_Service
         run: |
@@ -40,16 +32,9 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
       
-      - name: Set up Node.js (for TurboRepo)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install TurboRepo
-        run: npm install
-      
-      - name: Run tests with TurboRepo
-        run: npx turbo test --filter=patient-service
+      - name: Run tests
+        working-directory: apps/Micro3_Patient_Service
+        run: pytest tests/ -v --cov=app --cov-report=xml
         env:
           DB_HOST: localhost
           DB_PORT: 5432
@@ -60,19 +45,7 @@ jobs:
           REDIS_PORT: 6379
           RABBITMQ_HOST: localhost
           RABBITMQ_PORT: 5672
-          RABBITMQ_USER: guest
-          RABBITMQ_PASSWORD: guest
-          JWT_SECRET_KEY: test-secret-key-for-ci
-          AUTH_SERVICE_URL: http://localhost:8000
-          USER_SERVICE_URL: http://localhost:8001
-      
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        if: always()
-        with:
-          files: ./apps/Micro3_Patient_Service/coverage.xml
-          flags: patient-service
-          name: patient-service-coverage
+          JWT_SECRET_KEY: test-secret-key
   
   build:
     name: Build and Push Docker Image
@@ -103,7 +76,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
       
-      - name: Build and push Docker image
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./apps/Micro3_Patient_Service
@@ -111,8 +84,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      
-      - name: Image digest
-        run: echo "Image pushed with tags: ${{ steps.meta.outputs.tags }}"
