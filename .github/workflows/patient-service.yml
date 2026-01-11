@@ -34,7 +34,9 @@ jobs:
       
       - name: Run tests
         working-directory: apps/Micro3_Patient_Service
-        run: pytest tests/ -v --cov=app --cov-report=xml
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:${PWD}"
+          pytest tests/ -v --cov=app --cov-report=xml
         env:
           DB_HOST: localhost
           DB_PORT: 5432
