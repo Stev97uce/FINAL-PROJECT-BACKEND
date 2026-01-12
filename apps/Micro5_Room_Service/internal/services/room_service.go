@@ -121,7 +121,7 @@ func (s *roomService) UpdateRoom(ctx context.Context, id uuid.UUID, req *models.
 	// Check if room number is being changed and if it already exists
 	if req.RoomNumber != nil && *req.RoomNumber != room.RoomNumber {
 		existing, err := s.roomRepo.GetByRoomNumber(ctx, *req.RoomNumber)
-		if err == nil && existing != nil {
+		if err == nil && existing != nil && existing.ID != id {
 			return nil, errors.New("room number already exists")
 		}
 	}
