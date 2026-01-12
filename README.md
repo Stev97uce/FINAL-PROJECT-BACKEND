@@ -30,7 +30,7 @@ FINAL-PROJECT-BACKEND/
 | 2 | User Service | 8001 | ✅ Completo | Python/FastAPI | PostgreSQL 14 |
 | 3 | Patient Service | 8002 | ✅ Completo | Python/FastAPI | PostgreSQL 14 |
 | 4 | Appointment Service | 8003 | ✅ Completo | Go/Gin | PostgreSQL 14 + Redis |
-| 5 | Room Service | 8004 | 🔄 Pendiente | Go/Gin | PostgreSQL 14 |
+| 5 | Room Service | 8004 | ✅ Completo | Go/Gin | PostgreSQL 14 + Redis |
 | 6 | Clinical Service | 8005 | 🔄 Pendiente | Python/FastAPI | MongoDB 6.0 |
 | 7 | Supervision Service | 8006 | 🔄 Pendiente | Go/Gin | PostgreSQL 14 |
 | 8 | Notification Service | 8007 | 🔄 Pendiente | Python/FastAPI | MongoDB 6.0 |
