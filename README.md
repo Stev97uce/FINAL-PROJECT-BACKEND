@@ -11,15 +11,18 @@ Monorepo de microservicios construido con Turborepo, Python/FastAPI y Go/Gin par
 ```
 FINAL-PROJECT-BACKEND/
 ├── apps/
-│   ├── Micro1_Auth_Service/       ✅ Autenticación JWT (Python/FastAPI + MySQL)
-│   ├── Micro2_User_Service/       ✅ Gestión de usuarios (Python/FastAPI + PostgreSQL)
-│   ├── Micro3_Patient_Service/    ✅ Gestión de pacientes (Python/FastAPI + PostgreSQL)
-│   └── Micro4_Appointment_Service/ ✅ Agendamiento y citas (Go/Gin + PostgreSQL + Redis)
-├── packages/                      Paquetes compartidos (por implementar)
-├── .github/workflows/             CI/CD con GitHub Actions
-├── docker-compose.yml             Configuración Docker global
-├── package.json                   Scripts de Turborepo
-└── turbo.json                     Configuración de tareas
+│   ├── Micro1_Auth_Service/        ✅ Autenticación JWT (Python/FastAPI + MySQL)
+│   ├── Micro2_User_Service/        ✅ Gestión de usuarios (Python/FastAPI + PostgreSQL)
+│   ├── Micro3_Patient_Service/     ✅ Gestión de pacientes (Python/FastAPI + PostgreSQL)
+│   ├── Micro4_Appointment_Service/ ✅ Agendamiento y citas (Go/Gin + PostgreSQL + Redis)
+│   ├── Micro5_Room_Service/        ✅ Gestión de espacios (Go/Gin + PostgreSQL + Redis)
+│   ├── Micro6_Clinical_Service/    ✅ Notas clínicas (Python/FastAPI + MongoDB)
+│   └── Micro7_Supervision_Service/ ✅ Supervisión académica (Python/FastAPI + PostgreSQL)
+├── packages/                       Paquetes compartidos (por implementar)
+├── .github/workflows/              CI/CD con GitHub Actions
+├── docker-compose.yml              Configuración Docker global
+├── package.json                    Scripts de Turborepo
+└── turbo.json                      Configuración de tareas
 ```
 
 ## Microservicios Implementados
@@ -31,11 +34,11 @@ FINAL-PROJECT-BACKEND/
 | 3 | Patient Service | 8002 | ✅ Completo | Python/FastAPI | PostgreSQL 14 |
 | 4 | Appointment Service | 8003 | ✅ Completo | Go/Gin | PostgreSQL 14 + Redis |
 | 5 | Room Service | 8004 | ✅ Completo | Go/Gin | PostgreSQL 14 + Redis |
-| 6 | Clinical Service | 8005 | 🔄 Pendiente | Python/FastAPI | MongoDB 6.0 |
-| 7 | Supervision Service | 8006 | 🔄 Pendiente | Go/Gin | PostgreSQL 14 |
+| 6 | Clinical Service | 8005 | ✅ Completo | Python/FastAPI | MongoDB 6.0 |
+| 7 | Supervision Service | 8006 | ✅ Completo | Python/FastAPI | PostgreSQL 14 |
 | 8 | Notification Service | 8007 | 🔄 Pendiente | Python/FastAPI | MongoDB 6.0 |
 | 9 | Reporting Service | 8008 | 🔄 Pendiente | Python/FastAPI | PostgreSQL 14 |
-| 10 | Analytics Service | 8009 | 🔄 Pendiente | Go/Gin | MongoDB 6.0 |
+| 10 | Analytics Service | 8009 | 🔄 Pendiente | Python/FastAPI | MongoDB 6.0 |
 
 ## Tecnologías
 

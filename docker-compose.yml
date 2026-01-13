@@ -453,6 +453,47 @@ services:
       start_period: 40s
 
   # ===================================
+  # MICROSERVICIO 7: SUPERVISION SERVICE
+  # ===================================
+  
+  supervision_service:
+    build:
+      context: ./apps/Micro7_Supervision_Service
+      dockerfile: Dockerfile
+    image: stevxd97/uce-supervision-service:latest
+    container_name: uce_supervision_service
+    restart: unless-stopped
+    ports:
+      - "8006:8006"
+    environment:
+      DEBUG: "False"
+      DATABASE_URL: postgresql://postgres:postgres@postgresql:5432/supervision_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      SECRET_KEY: your-secret-key-change-in-production-supervision-service-2025
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - uce_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/health').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===================================
   # HERRAMIENTAS DE DESARROLLO
   # ===================================
   
