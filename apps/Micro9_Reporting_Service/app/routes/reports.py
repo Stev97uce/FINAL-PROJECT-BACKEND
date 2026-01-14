@@ -171,10 +171,26 @@ async def generate_report(
     await db.commit()
     await db.refresh(report)
     
-    # TODO: Enqueue Celery task for generation
-    # For now, generate synchronously (simplified)
-    # from app.tasks.celery_tasks import generate_report_task
-    # generate_report_task.delay(report.id, token)
+    # Generate report synchronously (for testing/development)
+    # TODO: Move to Celery task for production
+    try:
+        # Import report service
+        from app.services.report_service import ReportService
+        
+        # Generate report
+        report_service = ReportService()
+        
+        # For now, we'll pass None for token since we don't have it in the request context
+        # In production, this should be done via Celery with proper token handling
+        success = await report_service.generate_report(db, report.id, None)
+        
+        if success:
+            # Refresh to get updated status
+            await db.refresh(report)
+    except Exception as e:
+        # Log error but return the report in pending state
+        import logging
+        logging.error(f"Error generating report: {e}")
     
     return ReportResponse.model_validate(report)
 

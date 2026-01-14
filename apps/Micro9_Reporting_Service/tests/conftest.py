@@ -23,17 +23,28 @@ def event_loop():
 async def db_session():
     """Create test database session"""
     engine = create_async_engine(
-        TEST_DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
+        TEST_DATABASE_URL,
         echo=False
     )
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     
-    AsyncTestSession = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    AsyncTestSession = async_sessionmaker(
+        engine,
+        class_=AsyncSession,
+        expire_on_commit=False
+    )
     
-    async with AsyncTestSession() as session:
+    session = AsyncTestSession()
+    try:
         yield session
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

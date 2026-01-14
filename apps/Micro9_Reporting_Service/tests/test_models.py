@@ -18,7 +18,7 @@ async def test_create_report(db_session):
     )
     
     db_session.add(report)
-    await db_session.commit()
+    await db_session.flush()
     await db_session.refresh(report)
     
     assert report.id is not None
@@ -39,7 +39,7 @@ async def test_create_template(db_session):
     )
     
     db_session.add(template)
-    await db_session.commit()
+    await db_session.flush()
     await db_session.refresh(template)
     
     assert template.id is not None
