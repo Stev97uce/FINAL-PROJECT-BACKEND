@@ -3,19 +3,33 @@ import os
 from fastapi.testclient import TestClient
 
 # Set environment variables before importing app
-os.environ.setdefault("DB_USER", "test")
-os.environ.setdefault("DB_PASSWORD", "test")
-os.environ.setdefault("DB_HOST", "localhost")
-os.environ.setdefault("DB_PORT", "3306")
-os.environ.setdefault("DB_NAME", "test_db")
-os.environ.setdefault("REDIS_HOST", "localhost")
-os.environ.setdefault("REDIS_PORT", "6379")
-os.environ.setdefault("RABBITMQ_HOST", "localhost")
-os.environ.setdefault("RABBITMQ_PORT", "5672")
-os.environ.setdefault("RABBITMQ_USER", "guest")
-os.environ.setdefault("RABBITMQ_PASSWORD", "guest")
-os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-testing-only")
-os.environ.setdefault("JWT_ALGORITHM", "HS256")
+# Only set defaults if not already set (allows CI/CD to override)
+if "DB_USER" not in os.environ:
+    os.environ["DB_USER"] = "root"
+if "DB_PASSWORD" not in os.environ:
+    os.environ["DB_PASSWORD"] = "root123"
+if "DB_HOST" not in os.environ:
+    os.environ["DB_HOST"] = "localhost"
+if "DB_PORT" not in os.environ:
+    os.environ["DB_PORT"] = "3306"
+if "DB_NAME" not in os.environ:
+    os.environ["DB_NAME"] = "auth_db"
+if "REDIS_HOST" not in os.environ:
+    os.environ["REDIS_HOST"] = "localhost"
+if "REDIS_PORT" not in os.environ:
+    os.environ["REDIS_PORT"] = "6379"
+if "RABBITMQ_HOST" not in os.environ:
+    os.environ["RABBITMQ_HOST"] = "localhost"
+if "RABBITMQ_PORT" not in os.environ:
+    os.environ["RABBITMQ_PORT"] = "5672"
+if "RABBITMQ_USER" not in os.environ:
+    os.environ["RABBITMQ_USER"] = "guest"
+if "RABBITMQ_PASSWORD" not in os.environ:
+    os.environ["RABBITMQ_PASSWORD"] = "guest"
+if "JWT_SECRET_KEY" not in os.environ:
+    os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-testing-only"
+if "JWT_ALGORITHM" not in os.environ:
+    os.environ["JWT_ALGORITHM"] = "HS256"
 
 from app.main import app
 
