@@ -110,7 +110,8 @@ jobs:
     - name: Initialize database
       run: |
         mysql -h 127.0.0.1 -P 3306 -u root -proot123 -e "CREATE DATABASE IF NOT EXISTS auth_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-        mysql -h 127.0.0.1 -P 3306 -u root -proot123 auth_db < apps/Micro1_Auth_Service/database_setup.sql || echo "Database already initialized"
+        # Modify SQL script to use auth_db instead of auth_service_db
+        sed 's/auth_service_db/auth_db/g' apps/Micro1_Auth_Service/database_setup.sql | mysql -h 127.0.0.1 -P 3306 -u root -proot123 auth_db
     
     - name: Run tests directly with pytest
       working-directory: apps/Micro1_Auth_Service
