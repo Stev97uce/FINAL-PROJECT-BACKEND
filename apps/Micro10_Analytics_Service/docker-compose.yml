@@ -15,19 +15,19 @@ services:
       - PORT=8009
       - DEBUG=true
       
-      - MONGODB_HOST=host.docker.internal
+      - MONGODB_HOST=uce_mongodb
       - MONGODB_PORT=27017
       - MONGODB_USER=root
       - MONGODB_PASSWORD=rootpassword
       - MONGODB_DATABASE=analytics_db
       - MONGODB_AUTH_SOURCE=admin
       
-      - REDIS_HOST=host.docker.internal
+      - REDIS_HOST=uce_redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=
       - REDIS_DB=0
       
-      - RABBITMQ_HOST=host.docker.internal
+      - RABBITMQ_HOST=uce_rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=guest
       - RABBITMQ_PASSWORD=guest
@@ -37,19 +37,19 @@ services:
       - JWT_SECRET_KEY=your-super-secret-key-change-in-production
       - JWT_ALGORITHM=HS256
       
-      - AUTH_SERVICE_URL=http://host.docker.internal:8000
-      - USER_SERVICE_URL=http://host.docker.internal:8001
-      - PATIENT_SERVICE_URL=http://host.docker.internal:8002
-      - APPOINTMENT_SERVICE_URL=http://host.docker.internal:8003
-      - ROOM_SERVICE_URL=http://host.docker.internal:8004
-      - CLINICAL_SERVICE_URL=http://host.docker.internal:8005
-      - SUPERVISION_SERVICE_URL=http://host.docker.internal:8006
-      - NOTIFICATION_SERVICE_URL=http://host.docker.internal:8007
-      - REPORTING_SERVICE_URL=http://host.docker.internal:8008
+      - AUTH_SERVICE_URL=http://uce_auth_service:8000
+      - USER_SERVICE_URL=http://uce_user_service:8001
+      - PATIENT_SERVICE_URL=http://uce_patient_service:8002
+      - APPOINTMENT_SERVICE_URL=http://uce_appointment_service:8003
+      - ROOM_SERVICE_URL=http://uce_room_service:8004
+      - CLINICAL_SERVICE_URL=http://uce_clinical_service:8005
+      - SUPERVISION_SERVICE_URL=http://uce_supervision_service:8006
+      - NOTIFICATION_SERVICE_URL=http://uce_notification_service:8007
+      - REPORTING_SERVICE_URL=http://uce_reporting_service:8008
       
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - uce_network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8009/health"]
@@ -57,4 +57,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+
+networks:
+  uce_network:
+    external: true
+    name: final-project-backend_uce_network
 

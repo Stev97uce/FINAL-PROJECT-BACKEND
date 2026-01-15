@@ -2,6 +2,14 @@
 
 Analytics Service (Micro10) es el microservicio de **dashboards, métricas y visualizaciones** del Sistema de Gestión de Consultantes UCE. Proporciona APIs para consultar métricas agregadas, crear dashboards personalizados y visualizar datos analíticos del sistema.
 
+## 🚀 CI/CD Status
+
+![Tests](https://github.com/stevxd97/FINAL-PROJECT-BACKEND/workflows/Analytics%20Service%20CI%2FCD/badge.svg)
+![Docker](https://img.shields.io/docker/v/stevxd97/uce-analytics-service)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+**DockerHub:** [stevxd97/uce-analytics-service](https://hub.docker.com/r/stevxd97/uce-analytics-service)
+
 ## Tecnologías
 
 - **Lenguaje:** Go 1.22
@@ -11,16 +19,22 @@ Analytics Service (Micro10) es el microservicio de **dashboards, métricas y vis
 - **Mensajería:** RabbitMQ 3.12
 - **Contenedor:** Docker + Docker Compose
 - **Autenticación:** JWT (golang-jwt/jwt/v5)
+- **Testing:** Go testing + testify
+- **CI/CD:** GitHub Actions
 
 ## Características Principales
 
-- Almacenamiento de métricas en MongoDB
-- Caché de consultas frecuentes en Redis
-- Dashboards personalizables por usuario
-- Métricas agregadas de todos los microservicios
-- APIs RESTful con autenticación JWT
-- Control de acceso basado en roles (RBAC)
-- Health checks y monitoreo
+- ✅ Almacenamiento de métricas en MongoDB
+- ✅ Caché de consultas frecuentes en Redis
+- ✅ Dashboards personalizables por usuario
+- ✅ Métricas agregadas de todos los microservicios
+- ✅ APIs RESTful con autenticación JWT
+- ✅ Control de acceso basado en roles (RBAC)
+- ✅ Health checks y monitoreo
+- ✅ **Integración completa con RabbitMQ** (28 eventos)
+- ✅ **HTTP Clients** para consultar otros servicios
+- ✅ **Agregación automática** de métricas cada 5 minutos
+- ✅ **Suite completa de tests unitarios** (~36 tests)
 
 ## Arquitectura
 
@@ -435,6 +449,64 @@ docker-compose down -v
 docker-compose ps
 ```
 
+## 🧪 Testing
+
+### Suite de Tests
+
+El servicio incluye una **suite completa de tests unitarios**:
+
+| Paquete | Tests | Descripción |
+|---------|-------|-------------|
+| `internal/models` | 11 | Models, métricas, dashboards |
+| `internal/models` | 8 | DTOs y requests |
+| `pkg/config` | 8 | Configuración y env vars |
+| `internal/middleware` | 8 | Auth, RBAC, logging |
+
+**Total: ~36 tests unitarios**
+
+### Ejecutar Tests
+
+```bash
+# Todos los tests
+go test -v ./...
+
+# Con coverage
+go test -v -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+
+# Tests específicos
+go test -v ./internal/models/...
+go test -v ./pkg/config/...
+go test -v ./internal/middleware/...
+
+# Tests con race detection (CI/CD)
+go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+```
+
+### Tests en Docker (sin Go instalado)
+
+```bash
+# Ejecutar todos los tests
+docker run --rm -v ${PWD}:/app -w /app golang:1.22-alpine go test -v ./...
+
+# Con coverage
+docker run --rm -v ${PWD}:/app -w /app golang:1.22-alpine sh -c \
+  "go test -v -coverprofile=coverage.out ./... && go tool cover -func=coverage.out"
+```
+
+### CI/CD con GitHub Actions
+
+Los tests se ejecutan automáticamente en cada push/PR:
+
+```yaml
+- Run go vet
+- Run tests con coverage
+- Upload coverage a Codecov
+- Build Docker image (solo si tests pasan)
+```
+
+Ver workflow: [.github/workflows/analytics-service.yml](../../.github/workflows/analytics-service.yml)
+
 ## Integración con Otros Servicios
 
 Analytics Service consume datos de:
@@ -445,6 +517,11 @@ Analytics Service consume datos de:
 - Supervision Service (8006): Métricas de supervisión
 - Notification Service (8007): Estadísticas de notificaciones
 - Reporting Service (8008): Métricas de reportes
+
+**Integración en tiempo real:**
+- 📡 RabbitMQ Consumer: Escucha 28 tipos de eventos
+- 🔄 HTTP Clients: Consulta datos de 8 servicios
+- ⏰ Agregación automática: Cada 5 minutos
 
 ## Variables de Entorno
 
@@ -550,7 +627,36 @@ db.metrics.countDocuments()
 1. Fork el proyecto
 2. Crear branch: `git checkout -b feature/nueva-funcionalidad`
 3. Commit cambios: `git commit -m 'feat: agregar nueva funcionalidad'`
-4. Push: `git push origin feature/nueva-funcionalidad`
+4. **Ejecutar tests**: `go test -v ./...`
+5. Push: `git push origin feature/nueva-funcionalidad`
+6. Crear Pull Request
+
+## 📦 Deployment
+
+Para instrucciones completas de deployment con CI/CD:
+
+👉 **Ver [DEPLOYMENT_GUIDE.md](../../DEPLOYMENT_GUIDE.md)**
+
+### Quick Deploy
+
+```bash
+# Pull imagen desde DockerHub
+docker pull stevxd97/uce-analytics-service:latest
+
+# Usar docker-compose
+docker-compose pull analytics-service
+docker-compose up -d analytics-service
+
+# Verificar
+curl http://localhost:8009/health
+docker logs -f uce_analytics_service
+```
+
+## 📚 Documentación Adicional
+
+- [DEPLOYMENT_GUIDE.md](../../DEPLOYMENT_GUIDE.md) - Guía completa de CI/CD
+- [PRUEBAS_INTEGRACION.md](PRUEBAS_INTEGRACION.md) - Pruebas de integración
+- [RESUMEN_INTEGRACION.md](RESUMEN_INTEGRACION.md) - Resumen de integración
 5. Crear Pull Request
 
 ## Licencia

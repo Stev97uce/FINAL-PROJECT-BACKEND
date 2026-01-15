@@ -1,0 +1,749 @@
+{
+	"info": {
+		"_postman_id": "analytics-service-2026",
+		"name": "Micro10 - Analytics Service",
+		"description": "Colección completa para probar el Analytics Service\n\nServicio de Analytics y Dashboards para el sistema UCE Psicología\n\n**Endpoints:**\n- Health Check\n- Métricas (6 tipos)\n- Dashboards\n- Resúmenes estadísticos\n\n**Roles:**\n- Admin: Acceso completo\n- Coordinador: Crear métricas y dashboards\n- Psicólogo: Crear dashboards propios, ver públicos\n- Estudiante: Solo lectura",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8009/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["health"]
+						},
+						"description": "Verifica el estado del servicio y conexión con MongoDB y Redis"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8009/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": [""]
+						},
+						"description": "Información básica del servicio"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Metrics - Create",
+			"item": [
+				{
+					"name": "Crear Métrica - Appointment Stats (Coordinador)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_coordinador}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"appointment_stats\",\n  \"data\": {\n    \"total_appointments\": 150,\n    \"completed\": 120,\n    \"cancelled\": 15,\n    \"pending\": 15,\n    \"average_duration_minutes\": 45\n  },\n  \"period\": \"daily\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Crear métrica de estadísticas de citas (coordinador)"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Métrica - User Activity (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"user_activity\",\n  \"data\": {\n    \"total_users\": 500,\n    \"active_users\": 350,\n    \"new_users_last_month\": 50,\n    \"sessions_today\": 200\n  },\n  \"period\": \"daily\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Crear métrica de actividad de usuarios (admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Métrica - Room Utilization",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"room_utilization\",\n  \"data\": {\n    \"total_rooms\": 20,\n    \"occupied_rooms\": 15,\n    \"utilization_percentage\": 75.0,\n    \"peak_hours\": [\"09:00-11:00\", \"14:00-16:00\"]\n  },\n  \"period\": \"hourly\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Crear métrica de utilización de salas"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Métrica - Session Stats",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_coordinador}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"session_stats\",\n  \"data\": {\n    \"total_sessions\": 300,\n    \"individual_sessions\": 200,\n    \"group_sessions\": 100,\n    \"average_rating\": 4.5\n  },\n  \"period\": \"weekly\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Crear métrica de sesiones clínicas"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Métrica - Supervision Stats",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"supervision_stats\",\n  \"data\": {\n    \"total_supervisions\": 50,\n    \"pending_reviews\": 10,\n    \"approved\": 35,\n    \"rejected\": 5\n  },\n  \"period\": \"weekly\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Crear métrica de supervisiones"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Métrica - System Performance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"system_performance\",\n  \"data\": {\n    \"response_time_ms\": 120,\n    \"cpu_usage_percent\": 45.5,\n    \"memory_usage_mb\": 512,\n    \"active_connections\": 150\n  },\n  \"period\": \"realtime\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Crear métrica de rendimiento del sistema"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Metrics - Query",
+			"item": [
+				{
+					"name": "Listar Todas las Métricas (Psicólogo)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_psicologo}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/?limit=50",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						},
+						"description": "Listar todas las métricas con límite de 50"
+					},
+					"response": []
+				},
+				{
+					"name": "Filtrar por Tipo - Appointment Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_estudiante}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/?metric_type=appointment_stats&limit=10",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""],
+							"query": [
+								{
+									"key": "metric_type",
+									"value": "appointment_stats"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Filtrar métricas por tipo (estudiante)"
+					},
+					"response": []
+				},
+				{
+					"name": "Filtrar por Tipo - User Activity",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_coordinador}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/?metric_type=user_activity&limit=5",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""],
+							"query": [
+								{
+									"key": "metric_type",
+									"value": "user_activity"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Filtrar por actividad de usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Última Métrica - User Activity",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_psicologo}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/latest/user_activity",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", "latest", "user_activity"]
+						},
+						"description": "Obtener la última métrica de actividad de usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Última Métrica - Appointment Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_estudiante}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/latest/appointment_stats",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", "latest", "appointment_stats"]
+						},
+						"description": "Obtener la última métrica de citas"
+					},
+					"response": []
+				},
+				{
+					"name": "Dashboard Summary (Resumen General)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_coordinador}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/summary",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", "summary"]
+						},
+						"description": "Obtener resumen estadístico para dashboard principal"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Dashboards - CRUD",
+			"item": [
+				{
+					"name": "Crear Dashboard Público (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dashboard Principal - Sistema UCE\",\n  \"description\": \"Vista general del sistema con métricas clave\",\n  \"is_public\": true,\n  \"widgets\": [\n    {\n      \"title\": \"Estadísticas de Citas\",\n      \"metric_type\": \"appointment_stats\",\n      \"position\": {\n        \"x\": 0,\n        \"y\": 0,\n        \"width\": 6,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Actividad de Usuarios\",\n      \"metric_type\": \"user_activity\",\n      \"position\": {\n        \"x\": 6,\n        \"y\": 0,\n        \"width\": 6,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Utilización de Salas\",\n      \"metric_type\": \"room_utilization\",\n      \"position\": {\n        \"x\": 0,\n        \"y\": 4,\n        \"width\": 6,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Rendimiento del Sistema\",\n      \"metric_type\": \"system_performance\",\n      \"position\": {\n        \"x\": 6,\n        \"y\": 4,\n        \"width\": 6,\n        \"height\": 4\n      }\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", ""]
+						},
+						"description": "Crear dashboard público visible para todos"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Dashboard Privado (Psicólogo)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_psicologo}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Mi Dashboard Personal\",\n  \"description\": \"Dashboard privado para seguimiento de mis sesiones\",\n  \"is_public\": false,\n  \"widgets\": [\n    {\n      \"title\": \"Mis Sesiones\",\n      \"metric_type\": \"session_stats\",\n      \"position\": {\n        \"x\": 0,\n        \"y\": 0,\n        \"width\": 12,\n        \"height\": 6\n      }\n    },\n    {\n      \"title\": \"Mis Supervisiones\",\n      \"metric_type\": \"supervision_stats\",\n      \"position\": {\n        \"x\": 0,\n        \"y\": 6,\n        \"width\": 12,\n        \"height\": 4\n      }\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", ""]
+						},
+						"description": "Crear dashboard privado (solo visible para el creador)"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Dashboards (Psicólogo)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_psicologo}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", ""]
+						},
+						"description": "Listar dashboards propios + públicos (psicólogo)"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Dashboards (Estudiante)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_estudiante}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", ""]
+						},
+						"description": "Listar solo dashboards públicos (estudiante)"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Dashboard por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_coordinador}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/{{dashboard_id}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", "{{dashboard_id}}"]
+						},
+						"description": "Obtener dashboard específico por ID (reemplazar {{dashboard_id}})"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Dashboard (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dashboard Principal - Actualizado\",\n  \"description\": \"Vista general del sistema (actualizada con más widgets)\",\n  \"is_public\": true,\n  \"widgets\": [\n    {\n      \"title\": \"Estadísticas de Citas Actualizadas\",\n      \"metric_type\": \"appointment_stats\",\n      \"position\": {\n        \"x\": 0,\n        \"y\": 0,\n        \"width\": 4,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Actividad de Usuarios\",\n      \"metric_type\": \"user_activity\",\n      \"position\": {\n        \"x\": 4,\n        \"y\": 0,\n        \"width\": 4,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Rendimiento del Sistema\",\n      \"metric_type\": \"system_performance\",\n      \"position\": {\n        \"x\": 8,\n        \"y\": 0,\n        \"width\": 4,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Sesiones Clínicas\",\n      \"metric_type\": \"session_stats\",\n      \"position\": {\n        \"x\": 0,\n        \"y\": 4,\n        \"width\": 6,\n        \"height\": 4\n      }\n    },\n    {\n      \"title\": \"Utilización de Salas\",\n      \"metric_type\": \"room_utilization\",\n      \"position\": {\n        \"x\": 6,\n        \"y\": 4,\n        \"width\": 6,\n        \"height\": 4\n      }\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/{{dashboard_id}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", "{{dashboard_id}}"]
+						},
+						"description": "Actualizar dashboard existente (reemplazar {{dashboard_id}})"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Dashboard (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/{{dashboard_id}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", "{{dashboard_id}}"]
+						},
+						"description": "Eliminar dashboard (solo admin/coordinador, reemplazar {{dashboard_id}})"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Error Cases",
+			"item": [
+				{
+					"name": "401 - Sin Token (Crear Métrica)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"test_metric\",\n  \"data\": {\n    \"value\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Debe retornar 401 Unauthorized"
+					},
+					"response": []
+				},
+				{
+					"name": "403 - Rol Sin Permisos (Estudiante Crea Métrica)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_estudiante}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"metric_type\": \"test_metric\",\n  \"data\": {\n    \"value\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Debe retornar 403 Forbidden (estudiante no puede crear métricas)"
+					},
+					"response": []
+				},
+				{
+					"name": "403 - Estudiante Elimina Dashboard",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_estudiante}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/{{dashboard_id}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", "{{dashboard_id}}"]
+						},
+						"description": "Debe retornar 403 Forbidden (estudiante no puede eliminar)"
+					},
+					"response": []
+				},
+				{
+					"name": "400 - Métrica Sin Tipo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"data\": {\n    \"value\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/metrics/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "metrics", ""]
+						},
+						"description": "Debe retornar 400 Bad Request (falta metric_type)"
+					},
+					"response": []
+				},
+				{
+					"name": "400 - Dashboard Sin Nombre",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Dashboard sin nombre\",\n  \"widgets\": []\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8009/api/v1/dashboards/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8009",
+							"path": ["api", "v1", "dashboards", ""]
+						},
+						"description": "Debe retornar 400 Bad Request (falta name)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8009",
+			"type": "string"
+		},
+		{
+			"key": "token_admin",
+			"value": "GENERA_CON_GENERATE_TOKEN_PY",
+			"type": "string"
+		},
+		{
+			"key": "token_coordinador",
+			"value": "GENERA_CON_GENERATE_TOKEN_PY",
+			"type": "string"
+		},
+		{
+			"key": "token_psicologo",
+			"value": "GENERA_CON_GENERATE_TOKEN_PY",
+			"type": "string"
+		},
+		{
+			"key": "token_estudiante",
+			"value": "GENERA_CON_GENERATE_TOKEN_PY",
+			"type": "string"
+		},
+		{
+			"key": "dashboard_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

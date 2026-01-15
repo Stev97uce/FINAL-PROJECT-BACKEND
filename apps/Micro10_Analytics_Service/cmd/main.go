@@ -11,12 +11,15 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/stev97uce/analytics-service/internal/aggregator"
+	"github.com/stev97uce/analytics-service/internal/clients"
 	"github.com/stev97uce/analytics-service/internal/handlers"
 	"github.com/stev97uce/analytics-service/internal/middleware"
 	"github.com/stev97uce/analytics-service/internal/repository"
 	"github.com/stev97uce/analytics-service/internal/services"
 	"github.com/stev97uce/analytics-service/pkg/config"
 	"github.com/stev97uce/analytics-service/pkg/database"
+	"github.com/stev97uce/analytics-service/pkg/events"
 )
 
 func main() {
@@ -40,6 +43,31 @@ func main() {
 
 	metricHandler := handlers.NewMetricHandler(metricService)
 	dashboardHandler := handlers.NewDashboardHandler(dashboardService)
+
+	// Initialize RabbitMQ Consumer for event-driven metrics
+	log.Println("🔌 Initializing RabbitMQ Consumer...")
+	rabbitConsumer := events.NewRabbitMQConsumer(config.AppConfig, metricService)
+	if err := rabbitConsumer.Connect(); err != nil {
+		log.Printf("⚠️  Warning: Failed to connect to RabbitMQ: %v", err)
+		log.Println("⚠️  Event-driven metrics will not be available")
+	} else {
+		if err := rabbitConsumer.StartConsuming(); err != nil {
+			log.Printf("⚠️  Warning: Failed to start consuming: %v", err)
+		}
+		defer rabbitConsumer.Close()
+	}
+
+	// Initialize Service Client for HTTP integration
+	log.Println("🌐 Initializing Service Client...")
+	serviceClient := clients.NewServiceClient(config.AppConfig, "")
+
+	// Initialize Metric Aggregator for scheduled metrics
+	log.Println("📊 Initializing Metric Aggregator...")
+	metricAggregator := aggregator.NewMetricAggregator(config.AppConfig, serviceClient, metricService)
+	metricAggregator.Start()
+	defer metricAggregator.Stop()
+
+	log.Println("✅ All integrations initialized successfully")
 
 	if !config.AppConfig.Debug {
 		gin.SetMode(gin.ReleaseMode)

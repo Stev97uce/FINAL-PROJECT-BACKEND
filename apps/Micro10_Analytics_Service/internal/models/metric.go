@@ -23,6 +23,7 @@ type Metric struct {
 	Data       map[string]interface{} `bson:"data" json:"data"`
 	Timestamp  time.Time              `bson:"timestamp" json:"timestamp"`
 	Period     string                 `bson:"period,omitempty" json:"period,omitempty"`
+	Metadata   map[string]interface{} `bson:"metadata,omitempty" json:"metadata,omitempty"`
 	CreatedAt  time.Time              `bson:"created_at" json:"created_at"`
 }
 
