@@ -120,10 +120,27 @@ jobs:
         RABBITMQ_USER: guest
         RABBITMQ_PASSWORD: guest
         JWT_SECRET_KEY: test-secret-key-for-ci-testing
+        JWT_ALGORITHM: HS256
       run: |
         cd apps/Micro1_Auth_Service
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
+        
+        # Export environment variables explicitly for pytest
+        export DB_HOST=127.0.0.1
+        export DB_PORT=3306
+        export DB_USER=root
+        export DB_PASSWORD=root123
+        export DB_NAME=auth_db
+        export REDIS_HOST=127.0.0.1
+        export REDIS_PORT=6379
+        export RABBITMQ_HOST=127.0.0.1
+        export RABBITMQ_PORT=5672
+        export RABBITMQ_USER=guest
+        export RABBITMQ_PASSWORD=guest
+        export JWT_SECRET_KEY=test-secret-key-for-ci-testing
+        export JWT_ALGORITHM=HS256
+        
         cd ../..
         npx turbo run test --filter=Micro1_Auth_Service
     
