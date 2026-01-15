@@ -6,10 +6,17 @@ on:
     paths:
       - 'apps/Micro1_Auth_Service/**'
       - '.github/workflows/auth-service.yml'
+    paths-ignore:
+      - 'apps/Micro1_Auth_Service/**/*.md'
+      - 'apps/Micro1_Auth_Service/README*'
+      - 'apps/Micro1_Auth_Service/GUIA*.md'
+      - 'apps/Micro1_Auth_Service/INICIO*.md'
   pull_request:
     branches: [ main, develop, qa ]
     paths:
       - 'apps/Micro1_Auth_Service/**'
+    paths-ignore:
+      - 'apps/Micro1_Auth_Service/**/*.md'
   workflow_dispatch:
 
 env:
