@@ -79,16 +79,43 @@ jobs:
     - name: Install root dependencies (Turbo)
       run: npm install
     
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for MySQL..."
+        for i in {1..30}; do
+          if mysqladmin ping -h 127.0.0.1 -P 3306 -u root -proot123 --silent; then
+            echo "MySQL is ready!"
+            break
+          fi
+          echo "Waiting for MySQL to be ready... ($i/30)"
+          sleep 2
+        done
+        
+        echo "Waiting for Redis..."
+        for i in {1..30}; do
+          if redis-cli -h 127.0.0.1 -p 6379 ping; then
+            echo "Redis is ready!"
+            break
+          fi
+          echo "Waiting for Redis to be ready... ($i/30)"
+          sleep 2
+        done
+    
+    - name: Initialize database
+      run: |
+        mysql -h 127.0.0.1 -P 3306 -u root -proot123 -e "CREATE DATABASE IF NOT EXISTS auth_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        mysql -h 127.0.0.1 -P 3306 -u root -proot123 auth_db < apps/Micro1_Auth_Service/database_setup.sql || echo "Database already initialized"
+    
     - name: Run tests with Turbo
       env:
-        DB_HOST: localhost
+        DB_HOST: 127.0.0.1
         DB_PORT: 3306
         DB_USER: root
         DB_PASSWORD: root123
         DB_NAME: auth_db
-        REDIS_HOST: localhost
+        REDIS_HOST: 127.0.0.1
         REDIS_PORT: 6379
-        RABBITMQ_HOST: localhost
+        RABBITMQ_HOST: 127.0.0.1
         RABBITMQ_PORT: 5672
         RABBITMQ_USER: guest
         RABBITMQ_PASSWORD: guest
