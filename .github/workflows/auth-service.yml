@@ -24,6 +24,43 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root123
+          MYSQL_DATABASE: auth_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        ports:
+          - 5672:5672
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -43,6 +80,19 @@ jobs:
       run: npm install
     
     - name: Run tests with Turbo
+      env:
+        DB_HOST: localhost
+        DB_PORT: 3306
+        DB_USER: root
+        DB_PASSWORD: root123
+        DB_NAME: auth_db
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        RABBITMQ_HOST: localhost
+        RABBITMQ_PORT: 5672
+        RABBITMQ_USER: guest
+        RABBITMQ_PASSWORD: guest
+        JWT_SECRET_KEY: test-secret-key-for-ci-testing
       run: |
         cd apps/Micro1_Auth_Service
         pip install -r requirements.txt
