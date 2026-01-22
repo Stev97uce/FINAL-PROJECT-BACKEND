@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from urllib.parse import quote_plus
 
 class Settings(BaseSettings):
     # Database
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 1
+    REDIS_PASSWORD: str = ""
     
     # RabbitMQ
     RABBITMQ_HOST: str = "localhost"
@@ -34,15 +36,23 @@ class Settings(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
-        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        # URL-encode password and user to handle special characters
+        encoded_password = quote_plus(self.DB_PASSWORD)
+        encoded_user = quote_plus(self.DB_USER)
+        return f"postgresql://{encoded_user}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     
     @property
     def REDIS_URL(self) -> str:
+        # URL-encode Redis password if provided
+        if self.REDIS_PASSWORD:
+            encoded_password = quote_plus(self.REDIS_PASSWORD)
+            return f"redis://:{encoded_password}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignorar variables extra del .env que no estén definidas
 
 @lru_cache()
 def get_settings() -> Settings:

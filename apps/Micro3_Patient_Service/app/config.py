@@ -38,10 +38,12 @@ class Settings(BaseSettings):
     USER_SERVICE_URL: str = "http://localhost:8001"
     
     # CORS
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:3001"]
+    CORS_ORIGINS: str = "http://localhost:3000"
+    LOG_LEVEL: str = "INFO"
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 settings = Settings()

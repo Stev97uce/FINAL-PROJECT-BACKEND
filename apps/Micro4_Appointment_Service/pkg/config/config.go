@@ -3,8 +3,10 @@ package config
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -113,9 +115,21 @@ func LoadConfig() *Config {
 }
 
 func (c *Config) GetDSN() string {
+	// PostgreSQL DSN format handles special characters directly
+	// If password contains spaces or special characters, wrap in single quotes
+	password := c.DBPassword
+	if strings.Contains(password, " ") || strings.ContainsAny(password, "!@#$%^&*()") {
+		password = "'" + strings.ReplaceAll(password, "'", "''") + "'"
+	}
+	
+	user := c.DBUser
+	if strings.Contains(user, " ") {
+		user = "'" + strings.ReplaceAll(user, "'", "''") + "'"
+	}
+	
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		c.DBHost, c.DBPort, c.DBUser, c.DBPassword, c.DBName, c.DBSSLMode,
+		c.DBHost, c.DBPort, user, password, c.DBName, c.DBSSLMode,
 	)
 }
 
@@ -124,9 +138,13 @@ func (c *Config) GetRedisAddr() string {
 }
 
 func (c *Config) GetRabbitMQURL() string {
+	// URL-encode RabbitMQ credentials to handle special characters
+	encodedUser := url.QueryEscape(c.RabbitMQUser)
+	encodedPassword := url.QueryEscape(c.RabbitMQPassword)
+	
 	return fmt.Sprintf(
 		"amqp://%s:%s@%s:%s%s",
-		c.RabbitMQUser, c.RabbitMQPassword, c.RabbitMQHost, c.RabbitMQPort, c.RabbitMQVHost,
+		encodedUser, encodedPassword, c.RabbitMQHost, c.RabbitMQPort, c.RabbitMQVHost,
 	)
 }
 

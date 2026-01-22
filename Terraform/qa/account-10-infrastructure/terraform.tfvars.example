@@ -1,0 +1,96 @@
+# ============================================================
+# TERRAFORM VARIABLES - CUENTA 10 (INFRAESTRUCTURA)
+# ============================================================
+# Copiar este archivo a terraform.tfvars y ajustar valores
+# ============================================================
+
+# ===== AWS CREDENTIALS =====
+# IMPORTANTE: Las credenciales se deben pasar por variables de entorno:
+# export AWS_ACCESS_KEY_ID="tu_access_key_id"
+# export AWS_SECRET_ACCESS_KEY="tu_secret_access_key"
+# O configurar con: aws configure
+
+# ===== GENERAL =====
+aws_region   = "us-east-1"
+environment  = "qa"
+project_name = "uce-psychology"
+
+# ===== NETWORKING =====
+vpc_cidr             = "10.10.0.0/16"
+public_subnet_cidrs  = ["10.10.1.0/24", "10.10.2.0/24"]
+private_subnet_cidrs = ["10.10.11.0/24", "10.10.12.0/24"]
+availability_zones   = ["us-east-1a", "us-east-1b"]
+
+# ===== INSTANCIAS EC2 =====
+instance_type_bastion     = "t3.micro"    # Bastion (1 vCPU, 1 GB RAM)
+instance_type_kafka       = "t3.medium"   # Kafka (2 vCPU, 4 GB RAM)
+instance_type_api_gateway = "t3.small"    # API Gateway (2 vCPU, 2 GB RAM)
+instance_type_rabbitmq    = "t3.medium"   # RabbitMQ (2 vCPU, 4 GB RAM)
+instance_type_nginx       = "t3.small"    # NGINX (2 vCPU, 2 GB RAM)
+
+# ===== AMI (Ubuntu 22.04 LTS en us-east-1) =====
+# Buscar la AMI más reciente con:
+# aws ec2 describe-images --owners 099720109477 --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*" --query 'Images[*].[ImageId,Name,CreationDate]' --output table
+ami_ubuntu_docker = "ami-0c7217cdde317cfec"
+
+# ===== KEY PAIR =====
+key_name = "finalkey"
+
+# ===== SEGURIDAD =====
+# IPs permitidas para acceso SSH al Bastion
+# CAMBIAR EN PRODUCCIÓN - Restringir a tu IP
+allowed_ssh_cidrs = ["0.0.0.0/0"]
+
+# ===== CIDRs DE OTRAS CUENTAS =====
+# Permitir comunicación desde otras cuentas AWS
+account_01_cidr = "10.1.0.0/16"  # Databases
+account_07_cidr = "10.7.0.0/16"  # Microservices (Auth, User, Patient, Appointment)
+account_08_cidr = "10.8.0.0/16"  # Microservices (Room, Clinical, Supervision, Notification)
+account_09_cidr = "10.9.0.0/16"  # Microservices (Reporting, Analytics) + Monitoring
+
+# ===== ACCOUNT IDs PARA VPC PEERING =====
+# IMPORTANTE: Obtener con: aws sts get-caller-identity --query Account --output text
+# Ejecutar ese comando en CADA cuenta y copiar el resultado aquí
+
+account_01_id = ""  # COMPLETAR: Account ID de Cuenta 1 (Databases)
+account_07_id = ""  # COMPLETAR: Account ID de Cuenta 7 (Microservices 1)
+account_08_id = ""  # COMPLETAR: Account ID de Cuenta 8 (Microservices 2)
+account_09_id = ""  # COMPLETAR: Account ID de Cuenta 9 (Microservices 3)
+
+# ===== VPC PEERING =====
+enable_vpc_peering = true   # ✅ HABILITADO - Se crearán peerings cuando tengas los Account IDs y VPC IDs
+auto_accept_peering = false # Cambiar a true solo si las cuentas están en la MISMA AWS Organization
+
+# NOTA IMPORTANTE:
+# - En el PRIMER terraform apply, los peerings NO se crearán (porque faltan IDs)
+# - Después de crear las otras VPCs, completa los IDs arriba
+# - Ejecuta terraform apply NUEVAMENTE y los peerings se crearán automáticamente
+
+# ===== PUERTOS =====
+kafka_ports = {
+  broker    = 9092
+  zookeeper = 2181
+  jmx       = 9999
+}
+
+rabbitmq_ports = {
+  amqp       = 5672
+  management = 15672
+  mqtt       = 1883
+  mqtt_ws    = 15675
+  stomp      = 61613
+}
+
+api_gateway_ports = {
+  http  = 80
+  https = 443
+  admin = 8001
+}
+
+# ===== DOCKER IMAGES =====
+docker_images = {
+  kafka     = "bitnami/kafka:3.6"
+  zookeeper = "bitnami/zookeeper:3.9"
+  rabbitmq  = "rabbitmq:3.12-management-alpine"
+  nginx     = "nginx:1.25-alpine"
+}
