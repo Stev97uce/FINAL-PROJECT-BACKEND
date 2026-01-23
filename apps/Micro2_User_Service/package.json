@@ -1,0 +1,15 @@
+{
+  "name": "Micro2_User_Service",
+  "version": "1.0.0",
+  "description": "Microservicio de Usuarios - Gestión de perfiles de usuario UCE",
+  "scripts": {
+    "dev": "python run.py",
+    "test": "python -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=xml",
+    "lint": "python -m pylint app/",
+    "format": "python -m black app/",
+    "docker:build": "docker build -t uce-user-service ."
+  },
+  "keywords": ["microservice", "user", "fastapi", "postgresql"],
+  "author": "UCE Team",
+  "license": "MIT"
+}

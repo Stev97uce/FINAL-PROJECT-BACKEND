@@ -1,0 +1,113 @@
+# ============================================
+# DOCUMENTACIÓN (NO INCLUIR EN DOCKER IMAGES)
+# ============================================
+*.md
+!README.md
+ANALISIS_PROYECTO.md
+RESUMEN_EJECUTIVO.md
+GUIA_IMPLEMENTACION.md
+CHECKLIST.md
+ESTRUCTURA_PROYECTO.md
+
+# ============================================
+# CONFIGURACIÓN Y TEMPORALES
+# ============================================
+*.NEW
+*.backup
+*.bak
+*.old
+.git/
+.github/
+.gitignore
+.dockerignore
+
+# ============================================
+# PYTHON
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+htmlcov/
+.coverage
+.tox/
+dist/
+build/
+
+# ============================================
+# GO
+# ============================================
+*.test
+*.out
+vendor/
+
+# ============================================
+# NODE
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+.turbo/
+.next/
+out/
+
+# ============================================
+# TESTING
+# ============================================
+tests/
+test_*.py
+*_test.go
+coverage/
+
+# ============================================
+# DEVELOPMENT
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ============================================
+# ENVIRONMENT FILES
+# ============================================
+.env
+.env.*
+!.env.template
+
+# ============================================
+# LOGS
+# ============================================
+*.log
+logs/
+
+# ============================================
+# DOCKER
+# ============================================
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.dev
+.dockerignore
+
+# ============================================
+# TERRAFORM
+# ============================================
+infrastructure/
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# ============================================
+# DOCUMENTACIÓN ADICIONAL
+# ============================================
+docs/
+README*.md
+!README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE

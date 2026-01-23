@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  room_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uce_room_service
+    ports:
+      - "8004:8004"
+    environment:
+      APP_NAME: "Room Service"
+      APP_VERSION: "1.0.0"
+      ENVIRONMENT: "development"
+      PORT: "8004"
+      DEBUG: "true"
+      
+      DB_HOST: postgresql
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: room_db
+      DB_SSLMODE: disable
+      
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      REDIS_DB: "0"
+      
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_VHOST: "/"
+      RABBITMQ_EXCHANGE: uce_events
+      
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY:-your-super-secret-key-change-in-production}"
+      JWT_ALGORITHM: "HS256"
+      
+      AUTH_SERVICE_URL: "http://auth_service:8000"
+      USER_SERVICE_URL: "http://user_service:8001"
+      PATIENT_SERVICE_URL: "http://patient_service:8002"
+      APPOINTMENT_SERVICE_URL: "http://appointment_service:8003"
+      
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:5173"
+    depends_on:
+      - postgresql
+      - redis
+      - rabbitmq
+    networks:
+      - uce_network
+
+networks:
+  uce_network:
+    external: true

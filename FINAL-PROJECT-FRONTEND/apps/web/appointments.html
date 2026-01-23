@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Citas - UCE Psychology</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .appointment-header {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: white;
+        }
+        .calendar-card {
+            border-left: 4px solid #ffc107;
+            transition: transform 0.3s ease;
+        }
+        .calendar-card:hover {
+            transform: translateY(-3px);
+        }
+        .time-slot {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .time-slot:hover {
+            background-color: #f8f9fa;
+            border-color: #ffc107;
+        }
+        .time-slot.occupied {
+            background-color: #dc3545;
+            color: white;
+            cursor: not-allowed;
+        }
+        .time-slot.available {
+            background-color: #28a745;
+            color: white;
+        }
+        .time-slot.selected {
+            background-color: #ffc107;
+            color: black;
+            border-color: #e0a800;
+        }
+        .appointment-item {
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .confirmed { background-color: #28a745; }
+        .pending { background-color: #ffc107; }
+        .cancelled { background-color: #dc3545; }
+        .completed { background-color: #6c757d; }
+        .in-progress { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="appointment-header shadow-lg">
+        <div class="container-fluid">
+            <div class="row align-items-center py-3">
+                <div class="col">
+                    <div class="d-flex align-items-center">
+                        <a href="index.html" class="text-white text-decoration-none me-3">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                        <h1 class="h4 mb-0 text-white">
+                            <i class="bi bi-calendar-check me-2"></i>Gestión de Citas
+                        </h1>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light btn-sm" onclick="exportCalendar()">
+                            <i class="bi bi-download me-1"></i>Exportar
+                        </button>
+                        <button class="btn btn-light btn-sm" onclick="newAppointment()">
+                            <i class="bi bi-calendar-plus me-1"></i>Nueva Cita
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Calendar View Controls -->
+        <div class="card calendar-card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-warning btn-sm me-2" onclick="previousWeek()">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <h5 class="mb-0" id="weekRange">20 - 26 Enero 2026</h5>
+                            <button class="btn btn-outline-warning btn-sm ms-2" onclick="nextWeek()">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="therapistFilter">
+                            <option value="">Todos los Terapeutas</option>
+                            <option value="carlos">Dr. Carlos Mendoza</option>
+                            <option value="maria">Dra. María López</option>
+                            <option value="roberto">Dr. Roberto Silva</option>
+                            <option value="patricia">Dra. Patricia Castro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="roomFilter">
+                            <option value="">Todos los Consultorios</option>
+                            <option value="1">Consultorio 1</option>
+                            <option value="2">Consultorio 2</option>
+                            <option value="3">Consultorio 3</option>
+                            <option value="4">Consultorio 4</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-warning active" onclick="setView('week')">Semana</button>
+                            <button class="btn btn-outline-warning" onclick="setView('day')">Día</button>
+                            <button class="btn btn-outline-warning" onclick="setView('month')">Mes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Citas Hoy</h5>
+                                <h3 class="mb-0">45</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-arrow-up"></i> 5% vs ayer
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-calendar-check text-warning" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Confirmadas</h5>
+                                <h3 class="mb-0">38</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-check-circle"></i> 84% tasa
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Disponibles</h5>
+                                <h3 class="mb-0">12</h3>
+                                <small class="text-info">
+                                    <i class="bi bi-clock"></i> Horarios libres
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-clock text-info" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Canceladas</h5>
+                                <h3 class="mb-0">3</h5>
+                                <small class="text-danger">
+                                    <i class="bi bi-x-circle"></i> 6.7% tasa
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card calendar-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Vista de Semana</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered calendar-table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th style="width: 80px;">Hora</th>
+                                        <th>Lunes<br><small>20/01</small></th>
+                                        <th>Martes<br><small>21/01</small></th>
+                                        <th>Miércoles<br><small>22/01</small></th>
+                                        <th>Jueves<br><small>23/01</small></th>
+                                        <th>Viernes<br><small>24/01</small></th>
+                                        <th>Sábado<br><small>25/01</small></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center align-middle">08:00</td>
+                                        <td class="time-slot occupied" onclick="showAppointment(1)">
+                                            <small>Ana García</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(2)">
+                                            <small>Juan Pérez</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('wed', '08:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(3)">
+                                            <small>María Rodríguez</small><br>
+                                            <small>Dr. Silva</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('fri', '08:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">09:00</td>
+                                        <td class="time-slot occupied" onclick="showAppointment(4)">
+                                            <small>Carlos González</small><br>
+                                            <small>Dra. Castro</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(5)">
+                                            <small>Luis Martínez</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(6)">
+                                            <small>Sofía Castro</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('thu', '09:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(7)">
+                                            <small>Roberto Silva</small><br>
+                                            <small>Dr. Silva</small>
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">10:00</td>
+                                        <td class="time-slot available" onclick="bookSlot('mon', '10:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(8)">
+                                            <small>Patricia Gómez</small><br>
+                                            <small>Dra. Castro</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(9)">
+                                            <small>Jorge Ruiz</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(10)">
+                                            <small>Lucía Hernández</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('fri', '10:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">11:00</td>
+                                        <td class="time-slot occupied" onclick="showAppointment(11)">
+                                            <small>Andrés Morales</small><br>
+                                            <small>Dr. Silva</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('tue', '11:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(12)">
+                                            <small>Elena Vargas</small><br>
+                                            <small>Dra. Castro</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(13)">
+                                            <small>Miguel Ángel</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(14)">
+                                            <small>Carmen López</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td class="text-center align-middle">12:00</td>
+                                        <td colspan="6" class="text-center">
+                                            <strong>Horario de Almuerzo</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">14:00</td>
+                                        <td class="time-slot occupied" onclick="showAppointment(15)">
+                                            <small>Ricardo Díaz</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('tue', '14:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(16)">
+                                            <small>Isabel Torres</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(17)">
+                                            <small>Fernando Castro</small><br>
+                                            <small>Dr. Silva</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('fri', '14:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">15:00</td>
+                                        <td class="time-slot occupied" onclick="showAppointment(18)">
+                                            <small>María José</small><br>
+                                            <small>Dra. Castro</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(19)">
+                                            <small>Carlos Alberto</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('wed', '15:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(20)">
+                                            <small>Laura Sánchez</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(21)">
+                                            <small>José Luis</small><br>
+                                            <small>Dr. Silva</small>
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">16:00</td>
+                                        <td class="time-slot available" onclick="bookSlot('mon', '16:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(22)">
+                                            <small>Patricia Jiménez</small><br>
+                                            <small>Dra. Castro</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(23)">
+                                            <small>Roberto Carlos</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('thu', '16:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(24)">
+                                            <small>Ana María</small><br>
+                                            <small>Dra. López</small>
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle">17:00</td>
+                                        <td class="time-slot occupied" onclick="showAppointment(25)">
+                                            <small>Luis Fernando</small><br>
+                                            <small>Dr. Silva</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('tue', '17:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(26)">
+                                            <small>Carmen Elena</small><br>
+                                            <small>Dra. Castro</small>
+                                        </td>
+                                        <td class="time-slot occupied" onclick="showAppointment(27)">
+                                            <small>Jorge Enrique</small><br>
+                                            <small>Dr. Mendoza</small>
+                                        </td>
+                                        <td class="time-slot available" onclick="bookSlot('fri', '17:00')">
+                                            Disponible
+                                        </td>
+                                        <td class="time-slot text-muted bg-light">
+                                            Cerrado
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <!-- Today's Appointments -->
+                <div class="card calendar-card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Citas de Hoy</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="appointments-list">
+                            <div class="appointment-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">08:00 - Ana García</h6>
+                                        <small class="text-muted">Dr. Carlos Mendoza - Consultorio 1</small>
+                                        <div class="mt-1">
+                                            <span class="status-indicator confirmed"></span>
+                                            <small>Confirmada</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewAppointment(1)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="checkIn(1)">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="appointment-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">09:00 - Juan Pérez</h6>
+                                        <small class="text-muted">Dra. María López - Consultorio 2</small>
+                                        <div class="mt-1">
+                                            <span class="status-indicator pending"></span>
+                                            <small>En Espera</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewAppointment(2)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="checkIn(2)">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="appointment-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">10:00 - María Rodríguez</h6>
+                                        <small class="text-muted">Dr. Roberto Silva - Consultorio 3</small>
+                                        <div class="mt-1">
+                                            <span class="status-indicator in-progress"></span>
+                                            <small>En Progreso</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewAppointment(3)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning" onclick="completeAppointment(3)">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="appointment-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">11:00 - Carlos González</h6>
+                                        <small class="text-muted">Dra. Patricia Castro - Consultorio 4</small>
+                                        <div class="mt-1">
+                                            <span class="status-indicator pending"></span>
+                                            <small>Pendiente</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewAppointment(4)">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning" onclick="confirmAppointment(4)">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="cancelAppointment(4)">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card calendar-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning" data-action="create-appointment">
+                                <i class="bi bi-calendar-plus me-2"></i>Agendar Nueva Cita
+                            </button>
+                            <button class="btn btn-success" onclick="bulkSchedule()">
+                                <i class="bi bi-calendar-week me-2"></i>Agendar Múltiples
+                            </button>
+                            <button class="btn btn-info" onclick="sendReminders()">
+                                <i class="bi bi-bell me-2"></i>Enviar Recordatorios
+                            </button>
+                            <button class="btn btn-primary" onclick="viewAvailability()">
+                                <i class="bi bi-clock me-2"></i>Ver Disponibilidad
+                            </button>
+                            <button class="btn btn-secondary" onclick="printSchedule()">
+                                <i class="bi bi-printer me-2"></i>Imprimir Horario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Details Modal -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Cita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Appointment details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="editAppointment()">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Appointment Modal -->
+    <div class="modal fade" id="newAppointmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Cita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newAppointmentForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="patientSelect" class="form-label">Paciente</label>
+                                <select class="form-select" id="patientSelect" required>
+                                    <option value="">Seleccionar paciente...</option>
+                                    <option value="1">Ana García</option>
+                                    <option value="2">Juan Pérez</option>
+                                    <option value="3">María Rodríguez</option>
+                                    <option value="4">Carlos González</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="therapistSelect" class="form-label">Terapeuta</label>
+                                <select class="form-select" id="therapistSelect" required>
+                                    <option value="">Seleccionar terapeuta...</option>
+                                    <option value="carlos">Dr. Carlos Mendoza</option>
+                                    <option value="maria">Dra. María López</option>
+                                    <option value="roberto">Dr. Roberto Silva</option>
+                                    <option value="patricia">Dra. Patricia Castro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="appointmentDate" class="form-label">Fecha</label>
+                                <input type="date" class="form-control" id="appointmentDate" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="appointmentTime" class="form-label">Hora</label>
+                                <select class="form-select" id="appointmentTime" required>
+                                    <option value="">Seleccionar hora...</option>
+                                    <option value="08:00">08:00</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="roomSelect" class="form-label">Consultorio</label>
+                                <select class="form-select" id="roomSelect" required>
+                                    <option value="">Seleccionar consultorio...</option>
+                                    <option value="1">Consultorio 1</option>
+                                    <option value="2">Consultorio 2</option>
+                                    <option value="3">Consultorio 3</option>
+                                    <option value="4">Consultorio 4</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="appointmentType" class="form-label">Tipo de Cita</label>
+                            <select class="form-select" id="appointmentType" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="individual">Terapia Individual</option>
+                                <option value="group">Terapia Grupal</option>
+                                <option value="family">Terapia Familiar</option>
+                                <option value="evaluation">Evaluación</option>
+                                <option value="followup">Seguimiento</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="appointmentNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="appointmentNotes" rows="3" placeholder="Notas adicionales sobre la cita..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAppointment()">Guardar Cita</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/dashboard-functions.js"></script>
+    <script src="js/appointment-management.js"></script>
+    <script>
+        // Appointment management functions
+        function newAppointment() {
+            const modal = new bootstrap.Modal(document.getElementById('newAppointmentModal'));
+            modal.show();
+        }
+
+        function bookSlot(day, time) {
+            showAlert(`Agendando cita para ${day} a las ${time}`, 'info');
+            // TODO: Open new appointment modal with pre-filled data
+            newAppointment();
+        }
+
+        function showAppointment(appointmentId) {
+            showAlert(`Viendo detalles de cita ${appointmentId}`, 'info');
+            // TODO: Load appointment details in modal
+            const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+            modal.show();
+        }
+
+        function viewAppointment(appointmentId) {
+            showAppointment(appointmentId);
+        }
+
+        function editAppointment(appointmentId) {
+            showAlert(`Editando cita ${appointmentId}`, 'info');
+            // TODO: Open edit appointment form
+        }
+
+        function saveAppointment() {
+            const form = document.getElementById('newAppointmentForm');
+            if (form.checkValidity()) {
+                showAlert('Cita agendada exitosamente', 'success');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newAppointmentModal'));
+                modal.hide();
+                form.reset();
+                // TODO: Save appointment to backend
+            } else {
+                showAlert('Por favor complete todos los campos', 'warning');
+            }
+        }
+
+        function checkIn(appointmentId) {
+            showAlert(`Check-in de cita ${appointmentId} completado`, 'success');
+            // TODO: Process check-in
+        }
+
+        function confirmAppointment(appointmentId) {
+            showAlert(`Cita ${appointmentId} confirmada`, 'success');
+            // TODO: Confirm appointment
+        }
+
+        function cancelAppointment(appointmentId) {
+            if (confirm('¿Está seguro de cancelar esta cita?')) {
+                showAlert(`Cita ${appointmentId} cancelada`, 'warning');
+                // TODO: Cancel appointment
+            }
+        }
+
+        function completeAppointment(appointmentId) {
+            showAlert(`Cita ${appointmentId} completada`, 'success');
+            // TODO: Mark appointment as completed
+        }
+
+        function previousWeek() {
+            showAlert('Navegando a la semana anterior...', 'info');
+            // TODO: Update calendar to previous week
+        }
+
+        function nextWeek() {
+            showAlert('Navegando a la siguiente semana...', 'info');
+            // TODO: Update calendar to next week
+        }
+
+        function setView(view) {
+            showAlert(`Cambiando a vista ${view}`, 'info');
+            // TODO: Change calendar view
+        }
+
+        function exportCalendar() {
+            showAlert('Exportando calendario...', 'info');
+            // TODO: Export calendar
+        }
+
+        function bulkSchedule() {
+            showAlert('Abriendo agendamiento múltiple...', 'info');
+            // TODO: Open bulk scheduling interface
+        }
+
+        function sendReminders() {
+            showAlert('Enviando recordatorios...', 'info');
+            // TODO: Send reminders
+        }
+
+        function viewAvailability() {
+            showAlert('Viendo disponibilidad...', 'info');
+            // TODO: Show availability view
+        }
+
+        function printSchedule() {
+            window.print();
+        }
+
+        // Filter functionality
+        document.getElementById('therapistFilter').addEventListener('change', function() {
+            showAlert('Filtrando por terapeuta...', 'info');
+            // TODO: Apply therapist filter
+        });
+
+        document.getElementById('roomFilter').addEventListener('change', function() {
+            showAlert('Filtrando por consultorio...', 'info');
+            // TODO: Apply room filter
+        });
+
+        // Initialize appointments page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAppointmentStats();
+            setInterval(updateAppointmentStats, 30000); // Update every 30 seconds
+        });
+
+        function updateAppointmentStats() {
+            // TODO: Fetch real-time stats from API
+            console.log('Updating appointment stats...');
+        }
+    </script>
+</body>
+</html>

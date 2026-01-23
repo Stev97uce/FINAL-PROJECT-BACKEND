@@ -1,24 +1,46 @@
 {
-  "name": "FINAL-PROJECT-BACKEND",
+  "name": "uce-psicologia-backend",
   "private": true,
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Consultantes UCE - Backend Microservicios",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "turbo run build",
     "dev": "turbo run dev",
+    "start": "turbo run start",
+    "test": "turbo run test",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "format": "turbo run format",
+    "docker:build": "turbo run docker:build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "clean": "turbo run clean",
+    "auth:dev": "turbo run dev --filter=Micro1_Auth_Service",
+    "user:dev": "turbo run dev --filter=Micro2_User_Service"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.7.3",
-    "typescript": "5.9.2"
+    "turbo": "^2.7.3"
   },
   "engines": {
     "node": ">=18"
   },
   "packageManager": "npm@10.8.2",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/uce-psicologia-backend"
+  },
+  "keywords": [
+    "microservices",
+    "fastapi",
+    "go",
+    "gin",
+    "rabbitmq",
+    "turborepo",
+    "aws"
+  ],
+  "author": "UCE Psicología Team",
+  "license": "MIT"
 }

@@ -1,0 +1,108 @@
+name: Analytics Service CI/CD
+
+on:
+  push:
+    branches: [qa, main]
+    paths:
+      - 'apps/Micro10_Analytics_Service/**'
+      - '.github/workflows/analytics-service.yml'
+  pull_request:
+    branches: [qa, main]
+    paths:
+      - 'apps/Micro10_Analytics_Service/**'
+
+env:
+  SERVICE_NAME: analytics-service
+  DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/uce-analytics-service
+  GO_VERSION: '1.22'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        working-directory: apps/Micro10_Analytics_Service
+        run: go mod download
+
+      - name: Run go vet
+        working-directory: apps/Micro10_Analytics_Service
+        run: go vet ./...
+
+      - name: Run tests
+        working-directory: apps/Micro10_Analytics_Service
+        run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        continue-on-error: true
+        with:
+          file: apps/Micro10_Analytics_Service/coverage.out
+          flags: analytics-service
+
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/qa'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/Micro10_Analytics_Service
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:qa
+            ${{ env.DOCKER_IMAGE }}:v1.0.0
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
+
+  deploy-qa:
+    name: Deploy to QA
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/qa'
+    environment: qa
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy notification
+        run: |
+          echo "Analytics Service deployed to QA environment"
+          echo "Image: ${{ env.DOCKER_IMAGE }}:qa"
+          echo "Service: ${{ env.SERVICE_NAME }}"

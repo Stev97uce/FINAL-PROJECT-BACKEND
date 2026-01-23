@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Portal - UCE Psychology</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .patient-card {
+            border-left: 4px solid #28a745;
+            transition: transform 0.3s ease;
+        }
+        .patient-card:hover {
+            transform: translateY(-3px);
+        }
+        .appointment-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .appointment-item:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .treatment-goal {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h5 class="text-white">
+                            <i class="bi bi-heart-pulse me-2"></i>Mi Portal
+                        </h5>
+                        <small class="text-white-50">Portal del Paciente</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#appointments">
+                                <i class="bi bi-calendar-check me-2"></i>Mis Citas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#clinical">
+                                <i class="bi bi-file-medical me-2"></i>Expediente
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#treatment">
+                                <i class="bi bi-graph-up me-2"></i>Tratamiento
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#payments">
+                                <i class="bi bi-credit-card me-2"></i>Pagos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#messages">
+                                <i class="bi bi-chat-dots me-2"></i>Mensajes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#profile">
+                                <i class="bi bi-person me-2"></i>Mi Perfil
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-auto pt-4">
+                        <button class="btn btn-outline-light btn-sm w-100" onclick="logout()">
+                            <i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Mi Portal de Salud</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="scheduleAppointment()">
+                                <i class="bi bi-calendar-plus me-1"></i>Agendar Cita
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="emergencyContact()">
+                                <i class="bi bi-telephone me-1"></i>Contacto Emergencia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Section -->
+                <div class="card patient-card mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="mb-1">¡Hola, Ana García!</h4>
+                                <p class="text-muted mb-2">Bienvenida a tu portal personal de salud mental</p>
+                                <div class="d-flex gap-3">
+                                    <div>
+                                        <small class="text-muted">Terapeuta:</small>
+                                        <strong>Dr. Carlos Mendoza</strong>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Próxima cita:</small>
+                                        <strong>Mañana 10:00 AM</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="mb-2">
+                                    <svg width="100" height="100">
+                                        <circle cx="50" cy="50" r="45" stroke="#e9ecef" stroke-width="10" fill="none"></circle>
+                                        <circle cx="50" cy="50" r="45" stroke="#28a745" stroke-width="10" fill="none"
+                                                stroke-dasharray="283" stroke-dashoffset="85" class="progress-ring"></circle>
+                                    </svg>
+                                    <h5 class="mt-2">70%</h5>
+                                    <small class="text-muted">Progreso del Tratamiento</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card patient-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h5 class="text-muted mb-2">Sesiones Totales</h5>
+                                        <h3 class="mb-0">24</h3>
+                                        <small class="text-success">
+                                            <i class="bi bi-arrow-up"></i> 2 esta semana
+                                        </small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-calendar-check text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card patient-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h5 class="text-muted mb-2">Próxima Cita</h5>
+                                        <h3 class="mb-0">1d</h3>
+                                        <small class="text-info">
+                                            <i class="bi bi-clock"></i> Mañana 10:00
+                                        </small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-calendar-event text-info" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card patient-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h5 class="text-muted mb-2">Metas Cumplidas</h5>
+                                        <h3 class="mb-0">7/10</h3>
+                                        <small class="text-warning">
+                                            <i class="bi bi-trophy"></i> 70% completado
+                                        </small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-trophy text-warning" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card patient-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h5 class="text-muted mb-2">Estado de Ánimo</h5>
+                                        <h3 class="mb-0">😊</h3>
+                                        <small class="text-success">
+                                            <i class="bi bi-arrow-up"></i> Mejorando
+                                        </small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-emoji-smile text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments & Treatment Progress -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Próximas Citas</h5>
+                                <button class="btn btn-sm btn-outline-success" onclick="viewAllAppointments()">
+                                    Ver Todas
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="appointment-item p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1">Sesión Terapéutica Individual</h6>
+                                                    <small class="text-muted">Dr. Carlos Mendoza</small>
+                                                </div>
+                                                <span class="badge bg-warning">Mañana</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>23/01/2026
+                                                    <i class="bi bi-clock ms-2 me-1"></i>10:00 AM
+                                                </small>
+                                                <div>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment(1)">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" onclick="rescheduleAppointment(1)">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted">Continuación de terapia cognitiva</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <div class="appointment-item p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1">Evaluación de Progreso</h6>
+                                                    <small class="text-muted">Dra. María López</small>
+                                                </div>
+                                                <span class="badge bg-info">Próxima Semana</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>30/01/2026
+                                                    <i class="bi bi-clock ms-2 me-1"></i>2:00 PM
+                                                </small>
+                                                <div>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment(2)">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" onclick="rescheduleAppointment(2)">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted">Evaluación mensual de progreso</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <div class="appointment-item p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1">Terapia Familiar</h6>
+                                                    <small class="text-muted">Dr. Roberto Silva</small>
+                                                </div>
+                                                <span class="badge bg-secondary">En 2 Semanas</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>06/02/2026
+                                                    <i class="bi bi-clock ms-2 me-1"></i>4:00 PM
+                                                </small>
+                                                <div>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment(3)">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" onclick="rescheduleAppointment(3)">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted">Sesión familiar programada</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <div class="appointment-item p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1">Grupo de Apoyo</h6>
+                                                    <small class="text-muted">Dra. Patricia Castro</small>
+                                                </div>
+                                                <span class="badge bg-secondary">En 3 Semanas</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar3 me-1"></i>13/02/2026
+                                                    <i class="bi bi-clock ms-2 me-1"></i>6:00 PM
+                                                </small>
+                                                <div>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="viewAppointment(4)">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" onclick="rescheduleAppointment(4)">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted">Grupo de apoyo semanal</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Progreso del Tratamiento</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="treatment-goals">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small><strong>Manejo de Ansiedad</strong></small>
+                                            <span class="badge bg-success">Completado</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small><strong>Técnicas de Relajación</strong></small>
+                                            <span class="badge bg-success">Completado</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small><strong>Reestructuración Cognitiva</strong></small>
+                                            <span class="badge bg-warning">En Progreso</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: 70%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small><strong>Habilidades Sociales</strong></small>
+                                            <span class="badge bg-info">Iniciado</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" style="width: 40%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small><strong>Prevención de Recaídas</strong></small>
+                                            <span class="badge bg-secondary">Pendiente</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-secondary" style="width: 20%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-3">
+                                        <button class="btn btn-success btn-sm" onclick="viewTreatmentPlan()">
+                                            <i class="bi bi-graph-up me-1"></i>Ver Plan Completo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mood Tracker & Recent Activities -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Registro de Ánimo</h5>
+                                <button class="btn btn-sm btn-outline-success" onclick="recordMood()">
+                                    Registrar Hoy
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="mood-tracker">
+                                    <div class="row text-center mb-3">
+                                        <div class="col">
+                                            <small class="text-muted">Lun</small>
+                                            <div class="fs-4">😊</div>
+                                        </div>
+                                        <div class="col">
+                                            <small class="text-muted">Mar</small>
+                                            <div class="fs-4">😐</div>
+                                        </div>
+                                        <div class="col">
+                                            <small class="text-muted">Mié</small>
+                                            <div class="fs-4">😊</div>
+                                        </div>
+                                        <div class="col">
+                                            <small class="text-muted">Jue</small>
+                                            <div class="fs-4">🙂</div>
+                                        </div>
+                                        <div class="col">
+                                            <small class="text-muted">Vie</small>
+                                            <div class="fs-4">😊</div>
+                                        </div>
+                                        <div class="col">
+                                            <small class="text-muted">Sáb</small>
+                                            <div class="fs-4">😐</div>
+                                        </div>
+                                        <div class="col">
+                                            <small class="text-muted">Dom</small>
+                                            <div class="fs-4">😊</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info">
+                                        <h6><i class="bi bi-info-circle me-2"></i>Tendencia Semanal</h6>
+                                        <p class="mb-0">Tu estado de ánimo ha mejorado esta semana. Sigue con las técnicas de relajación y reestructuración cognitiva.</p>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-success" onclick="viewMoodHistory()">
+                                            <i class="bi bi-graph-up me-1"></i>Ver Historial Completo
+                                        </button>
+                                        <button class="btn btn-outline-primary" onclick="downloadMoodReport()">
+                                            <i class="bi bi-download me-1"></i>Descargar Reporte
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Actividades Recientes</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="activity-list">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-check text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Sesión Completada</h6>
+                                            <small class="text-muted">Terapia cognitiva - Dr. Carlos Mendoza</small>
+                                            <div class="text-muted small">Hace 2 días</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-clipboard-check text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Ejercicio Completado</h6>
+                                            <small class="text-muted">Técnicas de respiración - 15 minutos</small>
+                                            <div class="text-muted small">Ayer</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-journal-text text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Diario Actualizado</h6>
+                                            <small class="text-muted">Registro de pensamientos automáticos</small>
+                                            <div class="text-muted small">Hace 3 días</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-trophy text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Meta Alcanzada</h6>
+                                            <small class="text-muted">Manejo de ansiedad - Nivel 3 completado</small>
+                                            <div class="text-muted small">Hace 1 semana</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-chat-dots text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1">Mensaje Recibido</h6>
+                                            <small class="text-muted">Recordatorio de cita del Dr. Carlos Mendoza</small>
+                                            <div class="text-muted small">Hace 1 semana</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/dashboard-functions.js"></script>
+    <script src="js/appointment-management.js"></script>
+    <script>
+        // Patient specific functions
+        function scheduleAppointment() {
+            showAlert('Abriendo agendamiento de cita...', 'info');
+            // TODO: Open appointment scheduling form
+        }
+
+        function emergencyContact() {
+            showAlert('Mostrando contactos de emergencia...', 'warning');
+            // TODO: Show emergency contacts
+        }
+
+        function viewAllAppointments() {
+            showAlert('Viendo todas las citas...', 'info');
+            // TODO: Navigate to appointments list
+        }
+
+        function viewAppointment(id) {
+            showAlert(`Viendo detalles de cita ${id}`, 'info');
+            // TODO: Show appointment details
+        }
+
+        function rescheduleAppointment(id) {
+            showAlert(`Reprogramando cita ${id}`, 'info');
+            // TODO: Open reschedule form
+        }
+
+        function viewTreatmentPlan() {
+            showAlert('Viendo plan de tratamiento completo...', 'info');
+            // TODO: Show detailed treatment plan
+        }
+
+        function recordMood() {
+            showAlert('Abriendo registro de ánimo...', 'info');
+            // TODO: Open mood recording interface
+        }
+
+        function viewMoodHistory() {
+            showAlert('Viendo historial de ánimo...', 'info');
+            // TODO: Show mood history
+        }
+
+        function downloadMoodReport() {
+            showAlert('Descargando reporte de ánimo...', 'info');
+            // TODO: Download mood report
+        }
+
+        // Initialize patient dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePatientStats();
+            setInterval(updatePatientStats, 30000); // Update every 30 seconds
+        });
+
+        function updatePatientStats() {
+            // TODO: Fetch real-time stats from API
+            console.log('Updating patient stats...');
+        }
+    </script>
+</body>
+</html>

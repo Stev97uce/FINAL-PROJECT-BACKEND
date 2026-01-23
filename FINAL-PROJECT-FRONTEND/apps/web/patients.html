@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pacientes - UCE Psychology</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .patient-row {
+            transition: all 0.3s ease;
+        }
+        .patient-row:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .search-card {
+            border-left: 4px solid var(--uce-blue);
+        }
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .quick-action-btn {
+            transition: all 0.3s ease;
+        }
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="uce-header shadow-lg">
+        <div class="container-fluid">
+            <div class="row align-items-center py-3">
+                <div class="col">
+                    <div class="d-flex align-items-center">
+                        <a href="index.html" class="text-white text-decoration-none me-3">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                        <h1 class="h4 mb-0 text-white">
+                            <i class="bi bi-people-fill me-2"></i>Gestión de Pacientes
+                        </h1>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" data-action="create-patient">
+                            <i class="bi bi-person-plus me-2"></i>Nuevo Paciente
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="exportPatients()">
+                            <i class="bi bi-download me-2"></i>Exportar
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="importPatients()">
+                            <i class="bi bi-upload me-2"></i>Importar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Search and Filters -->
+        <div class="card search-card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nombre, cédula o email...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="active">Activo</option>
+                            <option value="inactive">Inactivo</option>
+                            <option value="new">Nuevo</option>
+                            <option value="discharged">Dado de alta</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="therapistFilter">
+                            <option value="">Todos los terapeutas</option>
+                            <option value="carlos">Dr. Carlos Mendoza</option>
+                            <option value="maria">Dra. María López</option>
+                            <option value="roberto">Dr. Roberto Silva</option>
+                            <option value="patricia">Dra. Patricia Castro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" id="dateFilter">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="applyFilters()">
+                            <i class="bi bi-funnel me-1"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Total Pacientes</h5>
+                                <h3 class="mb-0">567</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-arrow-up"></i> 12 nuevos este mes
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Activos</h5>
+                                <h3 class="mb-0">423</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-check-circle"></i> 75% del total
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-person-check text-success" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">Nuevos</h5>
+                                <h3 class="mb-0">28</h3>
+                                <small class="text-warning">
+                                    <i class="bi bi-person-plus"></i> Esperando evaluación
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-person-plus text-warning" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="text-muted mb-2">En Tratamiento</h5>
+                                <h3 class="mb-0">389</h3>
+                                <small class="text-info">
+                                    <i class="bi bi-heart-pulse"></i> 68% del total
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-heart-pulse text-info" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Lista de Pacientes</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleView()">
+                        <i class="bi bi-grid-3x3-gap me-1"></i>Cambiar Vista
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="refreshTable()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="patientsTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th>Paciente</th>
+                                <th>Contacto</th>
+                                <th>Terapeuta</th>
+                                <th>Estado</th>
+                                <th>Última Cita</th>
+                                <th>Próxima Cita</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="patient-row">
+                                <td>
+                                    <input type="checkbox" class="form-check-input patient-checkbox">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://picsum.photos/seed/patient1/40/40.jpg" class="patient-avatar me-2" alt="Ana García">
+                                        <div>
+                                            <div class="fw-bold">Ana García</div>
+                                            <small class="text-muted">ID: P001</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div>ana.garcia@email.com</div>
+                                        <small class="text-muted">0998765432</small>
+                                    </div>
+                                </td>
+                                <td>Dr. Carlos Mendoza</td>
+                                <td><span class="badge bg-success status-badge">Activo</span></td>
+                                <td>15/01/2026</td>
+                                <td>23/01/2026</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewPatient('P001')" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="editPatient('P001')" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="viewClinicalRecord('P001')" title="Expediente">
+                                            <i class="bi bi-file-medical"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="scheduleAppointment('P001')" title="Agendar">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="patient-row">
+                                <td>
+                                    <input type="checkbox" class="form-check-input patient-checkbox">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://picsum.photos/seed/patient2/40/40.jpg" class="patient-avatar me-2" alt="Juan Pérez">
+                                        <div>
+                                            <div class="fw-bold">Juan Pérez</div>
+                                            <small class="text-muted">ID: P002</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div>juan.perez@email.com</div>
+                                        <small class="text-muted">0998765433</small>
+                                    </div>
+                                </td>
+                                <td>Dra. María López</td>
+                                <td><span class="badge bg-success status-badge">Activo</span></td>
+                                <td>18/01/2026</td>
+                                <td>25/01/2026</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewPatient('P002')" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="editPatient('P002')" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="viewClinicalRecord('P002')" title="Expediente">
+                                            <i class="bi bi-file-medical"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="scheduleAppointment('P002')" title="Agendar">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="patient-row">
+                                <td>
+                                    <input type="checkbox" class="form-check-input patient-checkbox">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://picsum.photos/seed/patient3/40/40.jpg" class="patient-avatar me-2" alt="María Rodríguez">
+                                        <div>
+                                            <div class="fw-bold">María Rodríguez</div>
+                                            <small class="text-muted">ID: P003</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div>maria.rodriguez@email.com</div>
+                                        <small class="text-muted">0998765434</small>
+                                    </div>
+                                </td>
+                                <td>Dr. Roberto Silva</td>
+                                <td><span class="badge bg-warning status-badge">Nuevo</span></td>
+                                <td>-</td>
+                                <td>22/01/2026</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewPatient('P003')" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="editPatient('P003')" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="viewClinicalRecord('P003')" title="Expediente">
+                                            <i class="bi bi-file-medical"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="scheduleAppointment('P003')" title="Agendar">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="patient-row">
+                                <td>
+                                    <input type="checkbox" class="form-check-input patient-checkbox">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://picsum.photos/seed/patient4/40/40.jpg" class="patient-avatar me-2" alt="Carlos González">
+                                        <div>
+                                            <div class="fw-bold">Carlos González</div>
+                                            <small class="text-muted">ID: P004</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div>carlos.gonzalez@email.com</div>
+                                        <small class="text-muted">0998765435</small>
+                                    </div>
+                                </td>
+                                <td>Dra. Patricia Castro</td>
+                                <td><span class="badge bg-success status-badge">Activo</span></td>
+                                <td>20/01/2026</td>
+                                <td>27/01/2026</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewPatient('P004')" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="editPatient('P004')" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="viewClinicalRecord('P004')" title="Expediente">
+                                            <i class="bi bi-file-medical"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="scheduleAppointment('P004')" title="Agendar">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="patient-row">
+                                <td>
+                                    <input type="checkbox" class="form-check-input patient-checkbox">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://picsum.photos/seed/patient5/40/40.jpg" class="patient-avatar me-2" alt="Luis Martínez">
+                                        <div>
+                                            <div class="fw-bold">Luis Martínez</div>
+                                            <small class="text-muted">ID: P005</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <div>luis.martinez@email.com</div>
+                                        <small class="text-muted">0998765436</small>
+                                    </div>
+                                </td>
+                                <td>Dr. Carlos Mendoza</td>
+                                <td><span class="badge bg-secondary status-badge">Dado de alta</span></td>
+                                <td>10/01/2026</td>
+                                <td>-</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewPatient('P005')" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="editPatient('P005')" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="viewClinicalRecord('P005')" title="Expediente">
+                                            <i class="bi bi-file-medical"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="reactivatePatient('P005')" title="Reactivar">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Acciones Masivas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-primary w-100 quick-action-btn" onclick="bulkMessage()">
+                                    <i class="bi bi-chat-dots me-1"></i>Enviar Mensaje
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-success w-100 quick-action-btn" onclick="bulkSchedule()">
+                                    <i class="bi bi-calendar-plus me-1"></i>Agendar Citas
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-info w-100 quick-action-btn" onclick="bulkExport()">
+                                    <i class="bi bi-download me-1"></i>Exportar Datos
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-warning w-100 quick-action-btn" onclick="bulkAssign()">
+                                    <i class="bi bi-person-plus me-1"></i>Asignar Terapeuta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Estadísticas Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-2">
+                                    <h5 class="text-primary">28</h5>
+                                    <small class="text-muted">Nuevos este mes</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-2">
+                                    <h5 class="text-success">156</h5>
+                                    <small class="text-muted">Citas esta semana</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-2">
+                                    <h5 class="text-warning">89%</h5>
+                                    <small class="text-muted">Tasa de asistencia</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-2">
+                                    <h5 class="text-info">4.2</h5>
+                                    <small class="text-muted">Satisfacción promedio</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div class="modal fade" id="patientModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles del Paciente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Patient details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="editPatient()">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/dashboard-functions.js"></script>
+    <script src="js/patient-management.js"></script>
+    <script>
+        // Patient management functions
+        function newPatient() {
+            showAlert('Abriendo formulario de nuevo paciente...', 'info');
+            // TODO: Open new patient form
+        }
+
+        function viewPatient(patientId) {
+            showAlert(`Viendo detalles del paciente ${patientId}`, 'info');
+            // TODO: Load patient details in modal
+            const modal = new bootstrap.Modal(document.getElementById('patientModal'));
+            modal.show();
+        }
+
+        function editPatient(patientId) {
+            showAlert(`Editando paciente ${patientId}`, 'info');
+            // TODO: Open edit patient form
+        }
+
+        function viewClinicalRecord(patientId) {
+            showAlert(`Viendo expediente del paciente ${patientId}`, 'info');
+            // TODO: Navigate to clinical record
+            window.location.href = `clinical-record.html?patient=${patientId}`;
+        }
+
+        function scheduleAppointment(patientId) {
+            showAlert(`Agendando cita para paciente ${patientId}`, 'info');
+            // TODO: Open appointment scheduling
+        }
+
+        function reactivatePatient(patientId) {
+            if (confirm('¿Está seguro de reactivar a este paciente?')) {
+                showAlert(`Paciente ${patientId} reactivado`, 'success');
+                // TODO: Reactivate patient
+            }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const therapist = document.getElementById('therapistFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            showAlert('Aplicando filtros...', 'info');
+            // TODO: Apply filters to table
+            console.log('Filters:', { search, status, therapist, date });
+        }
+
+        function toggleView() {
+            showAlert('Cambiando vista de pacientes...', 'info');
+            // TODO: Toggle between table and card view
+        }
+
+        function refreshTable() {
+            showAlert('Actualizando tabla de pacientes...', 'info');
+            // TODO: Refresh patient data
+        }
+
+        function exportPatients() {
+            showAlert('Exportando lista de pacientes...', 'info');
+            // TODO: Export patient data
+        }
+
+        function bulkMessage() {
+            const selected = document.querySelectorAll('.patient-checkbox:checked').length;
+            if (selected === 0) {
+                showAlert('Por favor seleccione pacientes', 'warning');
+                return;
+            }
+            showAlert(`Enviando mensaje a ${selected} pacientes...`, 'info');
+            // TODO: Open bulk message interface
+        }
+
+        function bulkSchedule() {
+            const selected = document.querySelectorAll('.patient-checkbox:checked').length;
+            if (selected === 0) {
+                showAlert('Por favor seleccione pacientes', 'warning');
+                return;
+            }
+            showAlert(`Agendando citas para ${selected} pacientes...`, 'info');
+            // TODO: Open bulk scheduling interface
+        }
+
+        function bulkExport() {
+            const selected = document.querySelectorAll('.patient-checkbox:checked').length;
+            if (selected === 0) {
+                showAlert('Por favor seleccione pacientes', 'warning');
+                return;
+            }
+            showAlert(`Exportando datos de ${selected} pacientes...`, 'info');
+            // TODO: Export selected patient data
+        }
+
+        function bulkAssign() {
+            const selected = document.querySelectorAll('.patient-checkbox:checked').length;
+            if (selected === 0) {
+                showAlert('Por favor seleccione pacientes', 'warning');
+                return;
+            }
+            showAlert(`Asignando terapeuta a ${selected} pacientes...`, 'info');
+            // TODO: Open bulk therapist assignment
+        }
+
+        // Select all functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.patient-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.patient-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Initialize patients page
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePatientStats();
+            setInterval(updatePatientStats, 30000); // Update every 30 seconds
+        });
+
+        function updatePatientStats() {
+            // TODO: Fetch real-time stats from API
+            console.log('Updating patient stats...');
+        }
+    </script>
+</body>
+</html>
